@@ -1,0 +1,8 @@
+# CMake
+build/
+
+# VSCode
+.vscode/
+
+# Git
+.git/
