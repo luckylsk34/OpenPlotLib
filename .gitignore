@@ -3,6 +3,7 @@ build/
 
 # VSCode
 .vscode/
+.clangd
 
 # Git
 .git/
