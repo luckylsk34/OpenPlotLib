@@ -36,10 +36,10 @@ uniform Line lines[100];
 
 void drawCircle(float x, float y, float radius)
 {
+	// if (pow(gl_FragCoord.xy.x - x, 2) + pow(gl_FragCoord.xy.y - y, 2) <= pow(radius + 1, 2))
+	// 	out_color = vec4(0.682, 0.765, 0.918, 1.0);
 	if (pow(gl_FragCoord.xy.x - x, 2) + pow(gl_FragCoord.xy.y - y, 2) <= pow(radius, 2))
-		out_color = vec4(0.0, 0.0, 1.0, 1.0);
-	// if (pow(gl_FragCoord.xy.x - x, 2) + pow(gl_FragCoord.xy.y - y, 2) <= pow(2, 2))
-	// 	out_color = vec4(0.0, 1.0, 0.0, 1.0);
+		out_color = vec4(0.282, 0.471, 0.816, 1.0);
 }
 
 void drawLine(Line line)

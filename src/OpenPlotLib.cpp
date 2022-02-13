@@ -1,17 +1,25 @@
 #define BOOST_PYTHON_STATIC_LIB
 
 #include <boost/python.hpp>
+#include <boost/python/stl_iterator.hpp>
 #include <iostream>
 
-#include "GraphGUI.h"
-#include "Plots/plot.h"
-//#include "ReflectRNG/Scene.h"
+#include "Plots/Plot.h"
 #include "shaders.h"
 
 #define DEFAULT_SCREEN_WIDTH 800
 #define DEFAULT_SCREEN_HEIGHT 800
 
-int emptyGraph()
+namespace py = boost::python;
+
+template <typename T>
+inline std::vector<T> to_std_vector(const py::object &iterable)
+{
+	return std::vector<T>(py::stl_input_iterator<T>(iterable),
+	                      py::stl_input_iterator<T>());
+}
+
+int emptyGraph(py::list x_data, py::list y_data)
 {
 	// float circleRadius = 60.0;
 	// std::vector<Circle> circles { Circle({ 1000, 100 }, circleRadius),
@@ -32,14 +40,20 @@ int emptyGraph()
 	// Ray ray = Ray({ 400, 450 }, 50);
 	// Scene scene = Scene(circles, ray);
 
-	Plot *plot = new _2DPlot();
-	//_2DPlot plot;
 
-	int initialised;
-	auto app = GraphGUI(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, shaders, initialised);
-	if (initialised < 0)
-		return -1;
-	app.runProgramLoop(plot);
+	std::vector<Point> points;
+	// for (int i = 0; i < len(data); i++) {
+	// 	points.push_back(Point(data[i][0], data[i][1]));
+	// }
+	auto x_ = to_std_vector<float>(x_data);
+	auto y_ = to_std_vector<float>(y_data);
+	for (int i = 0; i < x_.size(); i++) {
+		points.push_back(Point(x_[i], y_[i]));
+	}
+	
+	// auto points = to_std_vector<float>(points);
+	Plot *plot1 = new ScatterPlot(points);
+	plot1->show();
 	return 0;
 }
 

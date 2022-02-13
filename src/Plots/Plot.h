@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../shaders.h"
+// #include "../shaders.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 

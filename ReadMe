@@ -1,0 +1,2 @@
+# OpenPlotLib
+This is a Plotting Library using OpenGL, Boost.Python for Python. The goal of this project is to provide a GPU based backend to the Plotting Library while having feature parity with libraries like matplotlib and seaborn.
