@@ -4,9 +4,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "boost/program_options.hpp"
 #include <iostream>
 #include <utility>
 #include <vector>
+
+namespace po = boost::program_options;
 
 class Point
 {
@@ -83,6 +86,7 @@ public:
 class ScatterPlot : public _2DPlot
 {
 public:
+	po::variables_map vm;
 	std::vector<Point> data;
 
 	ScatterPlot()
@@ -91,8 +95,9 @@ public:
 		this->y_range.set(0, 100, 10);
 	};
 
-	ScatterPlot(std::vector<Point> data)
+	ScatterPlot(std::vector<Point> data, po::variables_map vm)
 		: data(data)
+		, vm(vm)
 	{
 		this->x_range.set(0, 100, 10);
 		this->y_range.set(0, 100, 10);

@@ -80,24 +80,34 @@ uniform Line yaxis;
 	
 // }
 
+uniform sampler2D circle;
+
 void main(void)
 {
 	// Set the background color.
 	out_color = vec4(1.0, 1.0, 1.0, 1.0);
 
-	for (int i = 0; i < numberPoints; i++) {
-		drawCircle(points[i].x, points[i].y, POINT_RADIUS);
-	}
+    // if(texture(circle, gl_PointCoord).r < 0.5)
+    //     discard;
+
+	// vec2 pos = mod(gl_FragCoord.xy, vec2(50.0)) - vec2(25.0);
+	// float dist_squared = dot(pos, pos);
+
+	// out_color = (dist_squared < 400.0) 
+	// 	? vec4(.90, .90, .90, 1.0)
+	// 	: vec4(.20, .20, .40, 1.0);
+
 
 	// for (int i = 0; i < numberLines; i++)
 	// 	drawLine(lines[i]);
 
 
 	// Draw Axis
-	// drawAxis();
-	drawLine(xaxis);
-	drawLine(yaxis);
+	// drawLine(xaxis);
+	// drawLine(yaxis);
 
 	// PLot Points
-	// PlotPoints();
+	// for (int i = 0; i < numberPoints; i++) {
+	// 	drawCircle(points[i].x, points[i].y, POINT_RADIUS);
+	// }
 }

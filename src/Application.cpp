@@ -1,7 +1,18 @@
 #include "Plots/plot.h"
 
-int main(void)
+
+int main(int argc, char *argv[])
 {
+	po::options_description desc("Allowed options");
+	desc.add_options()
+		("help", "produce help message")
+		("gl_draw_arrays", po::value<int>(), "set compression level")
+	;
+
+	po::variables_map vm;
+	po::store(po::parse_command_line(argc, argv, desc), vm);
+	po::notify(vm);    
+
 	// // float circleRadius = 60.0;
 	std::vector<Point> points { Point({ 1000, 100 }),
 								Point({ 1000, 300 }),
@@ -23,12 +34,11 @@ int main(void)
 	// 	                        Point({ 30, 30 }),
 	// 	                        Point({ 40, 40 }),
 	// 	                        Point({ 50, 50 }) };
-	// Ray ray = Ray({ 400, 450 }, 50);
-	// Scene scene = Scene(circles, ray);
 
 	// Plot *plot = new _2DPlot();
 
-	auto plot1 = std::make_unique<ScatterPlot>(points);
+	// auto plot1 = std::make_unique<ScatterPlot>(points);
+	Plot *plot1 = new ScatterPlot(points, vm);
 	plot1->show();
 	//_2DPlot plot;
 

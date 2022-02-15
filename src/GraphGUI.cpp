@@ -18,6 +18,9 @@ GraphGUI::GraphGUI(int screenWidth, int screenHeight, std::map<std::string, std:
 	this->shaders = shaders;
 
 	initialised = prepareProgramAndWindow();
+	
+	
+	
 }
 
 GraphGUI::~GraphGUI()
@@ -153,6 +156,10 @@ int GraphGUI::prepareProgramAndWindow()
 	if (!glfwInit())
 		return -1;
 
+	// glEnable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	glEnable(GL_MULTISAMPLE);
 	this->window = glfwCreateWindow(this->screenWidth, this->screenHeight, "Hello World", nullptr, nullptr);
 	if (!this->window) {
 		glfwTerminate();
@@ -170,7 +177,9 @@ int GraphGUI::prepareProgramAndWindow()
 
 	std::string vertexShaderString = this->shaders["vertex"];
 	std::string fragmentShaderString = this->shaders["fragment"];
+
 	this->program = CreateShader(vertexShaderString, fragmentShaderString);
 	glUseProgram(this->program);
+	
 	return 0;
 }
