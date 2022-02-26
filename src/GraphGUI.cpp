@@ -18,9 +18,6 @@ GraphGUI::GraphGUI(int screenWidth, int screenHeight, std::map<std::string, std:
 	this->shaders = shaders;
 
 	initialised = prepareProgramAndWindow();
-	
-	
-	
 }
 
 GraphGUI::~GraphGUI()
@@ -151,15 +148,12 @@ void GraphGUI::runProgramLoop(Plot *plot)
 	}
 }
 
+void empty(GLFWwindow* window, double xpos, double ypos) {}
 int GraphGUI::prepareProgramAndWindow()
 {
 	if (!glfwInit())
 		return -1;
 
-	// glEnable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	glEnable(GL_MULTISAMPLE);
 	this->window = glfwCreateWindow(this->screenWidth, this->screenHeight, "Hello World", nullptr, nullptr);
 	if (!this->window) {
 		glfwTerminate();
@@ -169,10 +163,15 @@ int GraphGUI::prepareProgramAndWindow()
 	glfwMakeContextCurrent(this->window);
 	glfwSwapInterval(1);
 	glfwSetKeyCallback(window, this->keyCallback);
+	glfwSetCursorPosCallback(window, empty);
 
 	if (glewInit() != GLEW_OK)
 		std::cout << "Error" << std::endl;
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// glEnable(GL_ALPHA_TEST);
+	// glAlphaFunc(GL_GEQUAL, 0.0);
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	std::string vertexShaderString = this->shaders["vertex"];
