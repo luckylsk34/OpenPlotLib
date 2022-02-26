@@ -5,12 +5,12 @@ project(OpenPlotLib VERSION 0.1.0)
 # set(CMAKE_STATIC_LIBRARY_PREFIX "")
 set(CMAKE_CXX_STANDARD 17)
 
-if ( CMAKE_COMPILER_IS_GNUCC )
-        set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-endif()
-if ( MSVC )
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W4")
-endif()
+# if ( CMAKE_COMPILER_IS_GNUCC )
+#         set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+# endif()
+# if ( MSVC )
+# set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /W4")
+# endif()
 
 include(CTest)
 enable_testing()
@@ -25,7 +25,7 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_ARCHITECTURE "-x64")
 
 cmake_policy(SET CMP0074 NEW)
-find_package(Boost 1.78.0 COMPONENTS python37 REQUIRED)
+find_package(Boost 1.78.0 COMPONENTS python37 program_options REQUIRED)
 add_definitions(-DBOOST_PYTHON_STATIC_LIB)
 
 find_package(Python 3.7 COMPONENTS Development REQUIRED)
@@ -59,6 +59,7 @@ target_link_libraries(OpenPlotLibTest ${Boost_LIBRARIES} ${Python_LIBRARIES} ${O
 #         src/ReflectRNG/Scene.h
 #         src/Plots/Plot.h
 #         src/Plots/_2DPlot.cpp
+#         src/Plots/ScatterPlot.cpp
 #         src/shaders.h
 # )
 # target_compile_definitions(OpenPlotLib PRIVATE GLEW_STATIC)
