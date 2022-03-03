@@ -1,4 +1,4 @@
-#include "Plots/plot.h"
+#include "Plots/Plot.h"
 
 
 int main(int argc, char *argv[])
@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
 
 	// Plot *plot = new _2DPlot();
 
-	// auto plot1 = std::make_unique<ScatterPlot>(points);
-	Plot *plot1 = new ScatterPlot(points, vm);
+	auto plot1 = std::make_unique<ScatterPlot>(points, vm);
+	// Plot *plot1 = new ScatterPlot(points, vm);
 	plot1->show();
 	//_2DPlot plot;
 

@@ -1,17 +1,17 @@
-#include "../GraphGUI.h"
+#include "../GUIManager.h"
 #include "../shaders.h"
 #include "Plot.h"
+#include <boost/range/adaptor/indexed.hpp>
 #include <iostream>
 #include <stdint.h>
 #include <string>
-#include <boost/range/adaptor/indexed.hpp>
 
 #define DEFAULT_SCREEN_WIDTH 800
 #define DEFAULT_SCREEN_HEIGHT 800
 #define PI 3.1415926f
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-void initialize(GraphGUI &app, std::vector<Point> &points)
+void initialize(GUIManager &app, std::vector<Point> &points)
 {
 
 	// Use a Vertex Array Object
@@ -76,25 +76,25 @@ void initialize(GraphGUI &app, std::vector<Point> &points)
 		quad[30 * point.index() + 7] = 0;
 		quad[30 * point.index() + 8] = 1;
 		quad[30 * point.index() + 9] = 1;
-		
+
 		quad[30 * point.index() + 10] = point.value().x - radius;
 		quad[30 * point.index() + 11] = point.value().y + radius;
 		quad[30 * point.index() + 12] = 0;
 		quad[30 * point.index() + 13] = -1;
 		quad[30 * point.index() + 14] = 1;
-		
+
 		quad[30 * point.index() + 15] = point.value().x - radius;
 		quad[30 * point.index() + 16] = point.value().y + radius;
 		quad[30 * point.index() + 17] = 0;
 		quad[30 * point.index() + 18] = -1;
 		quad[30 * point.index() + 19] = 1;
-		
+
 		quad[30 * point.index() + 20] = point.value().x - radius;
 		quad[30 * point.index() + 21] = point.value().y - radius;
 		quad[30 * point.index() + 22] = 0;
 		quad[30 * point.index() + 23] = -1;
 		quad[30 * point.index() + 24] = -1;
-		
+
 		quad[30 * point.index() + 25] = point.value().x + radius;
 		quad[30 * point.index() + 26] = point.value().y - radius;
 		quad[30 * point.index() + 27] = 0;
@@ -119,50 +119,22 @@ void initialize(GraphGUI &app, std::vector<Point> &points)
 int ScatterPlot::show()
 {
 	int initialised;
-	auto app = GraphGUI(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, shaders, initialised);
+	auto app = GUIManager(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, shaders, initialised);
 	if (initialised < 0)
 		return -1;
 
 	initialize(app, this->data);
 
-	app.runProgramLoop(this);
+	glClear(GL_COLOR_BUFFER_BIT);
+	while (!app.windowClosed()) {
+		this->draw();
+		app.postDrawSteps();
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
 	return 0;
 }
 
-void DrawCircle(float cx, float cy, float r, int num_segments)
-{
-	// glBegin(GL_LINE_LOOP);
-	// for(int ii = 0; ii < num_segments; ii++)
-	// {
-	//     float theta = 2.0f * 3.1415926f * float(ii) / float(num_segments);//get the current angle
-
-	//     float x = r * cosf(theta);//calculate the x component
-	//     float y = r * sinf(theta);//calculate the y component
-
-	//     glVertex2f(x + cx, y + cy);//output vertex
-
-	// }
-	// glEnd();
-	int i;
-	int triangleAmount = num_segments; //# of triangles used to draw circle
-
-	// GLfloat radius = 0.8f; //radius
-	GLfloat twicePi = 2.0f * PI;
-	glColor4f(0.0, 0.0, 1.0, 1.0);
-
-	// glBegin(GL_TRIANGLE_FAN);
-	glBegin(GL_LINES);
-	// glColor4f(1.0, 0.0, 0.0, 1.0);
-	glVertex2f(cx, cy); // center of circle
-	for (i = 0; i <= triangleAmount; i++) {
-		glVertex2f(
-			cx + (r * cos(i * twicePi / triangleAmount)),
-			cy + (r * sin(i * twicePi / triangleAmount)));
-	}
-	glEnd();
-}
-
-void ScatterPlot::draw(GLFWwindow *window, int program, int screenWidth, int screenHeight)
+void ScatterPlot::draw()
 {
 	// Set Background
 	glClearColor(1, 1, 1, 1);
@@ -172,5 +144,4 @@ void ScatterPlot::draw(GLFWwindow *window, int program, int screenWidth, int scr
 	glDrawArrays(GL_TRIANGLES, 0, this->data.size() * 6);
 	// Draw Axis
 	// Draw Legend
-
 }

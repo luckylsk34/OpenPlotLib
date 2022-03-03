@@ -33,8 +33,8 @@ find_package(Python 3.7 COMPONENTS Development REQUIRED)
 add_executable(OpenPlotLibTest src/Application.cpp )
 target_sources(OpenPlotLibTest
     PRIVATE
-        src/GraphGUI.cpp
-        src/GraphGUI.h
+        src/GUIManager.cpp
+        src/GUIManager.h
         src/ReflectRNG/Circle.cpp
         src/ReflectRNG/Ray.cpp
         src/ReflectRNG/Scene.cpp
@@ -51,8 +51,8 @@ target_link_libraries(OpenPlotLibTest ${Boost_LIBRARIES} ${Python_LIBRARIES} ${O
 # add_library(OpenPlotLib MODULE src/OpenPlotLib.cpp )
 # target_sources(OpenPlotLib
 #     PRIVATE
-#         src/GraphGUI.cpp
-#         src/GraphGUI.h
+#         src/GUIManager.cpp
+#         src/GUIManager.h
 #         src/ReflectRNG/Circle.cpp
 #         src/ReflectRNG/Ray.cpp
 #         src/ReflectRNG/Scene.cpp

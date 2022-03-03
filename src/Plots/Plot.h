@@ -1,6 +1,5 @@
 #pragma once
 
-// #include "../shaders.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -8,6 +7,8 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+
+#include "../GUIManager.h"
 
 namespace po = boost::program_options;
 
@@ -66,10 +67,12 @@ inline Range<T>::Range()
 class Plot
 {
 public:
+	GUIManager guiManager;
+
 	virtual ~Plot() = default;
 
 	virtual int show() { return 0; };
-	virtual void draw(GLFWwindow *window, int program, int screenWidth, int screenHeight) {};
+	virtual void draw() {};
 };
 
 class _2DPlot : public Plot
@@ -78,9 +81,8 @@ public:
 	Range<double> x_range;
 	Range<double> y_range;
 
-	// void draw(GLFWwindow *window, int program, int screenWidth, int screenHeight) override { std::cout << "insdi" << std::endl; };
 	int show() override;
-	void draw(GLFWwindow *window, int program, int screenWidth, int screenHeight) override;
+	void draw() override;
 };
 
 class ScatterPlot : public _2DPlot
@@ -89,11 +91,10 @@ public:
 	po::variables_map vm;
 	std::vector<Point> data;
 
-	ScatterPlot()
-	{
-		this->x_range.set(0, 100, 10);
-		this->y_range.set(0, 100, 10);
-	};
+	ScatterPlot() {};
+
+	ScatterPlot(po::variables_map vm)
+		: ScatterPlot(std::vector<Point>(), vm) {};
 
 	ScatterPlot(std::vector<Point> data, po::variables_map vm)
 		: data(data)
@@ -103,7 +104,6 @@ public:
 		this->y_range.set(0, 100, 10);
 	};
 
-	// void show();
 	int show() override;
-	void draw(GLFWwindow *window, int program, int screenWidth, int screenHeight) override;
+	void draw() override;
 };

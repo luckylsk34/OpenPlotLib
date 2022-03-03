@@ -7,26 +7,24 @@
 #include <memory>
 #include <string>
 
-
-#include "Plots/plot.h"
-
-class GraphGUI
+class GUIManager
 {
 public:
 	int screenWidth, screenHeight;
-	std::map<std::string, std::string> shaders;
+	std::map<std::string, int> compiledShaders;
 	GLFWwindow *window;
 	unsigned int program;
 
-	GraphGUI(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised);
-	~GraphGUI();
-	void runProgramLoop(Plot *plot);
-
-private:
+	GUIManager();
+	GUIManager(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised);
+	~GUIManager();
+	bool windowClosed();
+	void postDrawSteps();
 	static std::string GetShadderFromSource(const std::string &filepath);
 	static unsigned int CompileShader(unsigned int type, const std::string &source);
 	static bool CheckForError(unsigned int program, int whatToCheck);
-	static unsigned int CreateShader(const std::string &vertexshader, const std::string &fragmentshader);
+	unsigned int BindShaders(std::string vertexShader, std::string fragmentShader);
+	static unsigned int BindShaders(unsigned int program, const int vertexshader, const int fragmentshader);
 	static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
-	int prepareProgramAndWindow();
+	int prepareProgramAndWindow(std::map<std::string, std::string> shaders);
 };

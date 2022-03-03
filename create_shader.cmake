@@ -34,11 +34,12 @@ SET(SHADER_FILE_END "}\;")
 
 if(
     NOT EXISTS ${SHADER_FILE} OR
-    ${CMAKE_CURRENT_SOURCE_DIR}/../res/shaders/Fragment.frag IS_NEWER_THAN ${SHADER_FILE} OR
-    ${CMAKE_CURRENT_SOURCE_DIR}/../res/shaders/Vertex.vert IS_NEWER_THAN ${SHADER_FILE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../res/shaders/scatter_plot_shaders/points_fragment.frag IS_NEWER_THAN ${SHADER_FILE} OR
+    ${CMAKE_CURRENT_SOURCE_DIR}/../res/shaders/scatter_plot_shaders/points_vertex.vert IS_NEWER_THAN ${SHADER_FILE}
 )
     file(WRITE ${SHADER_FILE} ${SHADER_FILE_START})
-    embed_resource(${CMAKE_CURRENT_SOURCE_DIR}/../res/shaders/Fragment.frag ${SHADER_FILE} fragment)
-    embed_resource(${CMAKE_CURRENT_SOURCE_DIR}/../res/shaders/Vertex.vert ${SHADER_FILE} vertex)
+    embed_resource(${CMAKE_CURRENT_SOURCE_DIR}/../res/shaders/scatter_plot_shaders/points_fragment.frag ${SHADER_FILE} scatter_plot_points_fragment)
+    embed_resource(${CMAKE_CURRENT_SOURCE_DIR}/../res/shaders/scatter_plot_shaders/points_vertex.vert ${SHADER_FILE} scatter_plot_points_vertex)
+    
     file(APPEND ${SHADER_FILE} ${SHADER_FILE_END})
 endif()

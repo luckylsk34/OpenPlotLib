@@ -1,5 +1,5 @@
-#include "GraphGUI.h"
-#include "Plots/plot.h"
+#include "GUIManager.h"
+// #include "Plots/Plot.h"
 
 #include <cassert>
 #include <fstream>
@@ -11,22 +11,23 @@
 
 #define SCREENSHOT_PNG_PATH "screenshot.png"
 
-GraphGUI::GraphGUI(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised)
+GUIManager::GUIManager() { }
+
+GUIManager::GUIManager(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised)
 {
 	this->screenWidth = screenWidth;
 	this->screenHeight = screenHeight;
-	this->shaders = shaders;
 
-	initialised = prepareProgramAndWindow();
+	initialised = prepareProgramAndWindow(shaders);
 }
 
-GraphGUI::~GraphGUI()
+GUIManager::~GUIManager()
 {
 	glDeleteProgram(this->program);
 	glfwTerminate();
 }
 
-std::string GraphGUI::GetShadderFromSource(const std::string &filepath)
+std::string GUIManager::GetShadderFromSource(const std::string &filepath)
 {
 	std::ifstream stream(filepath);
 	std::string line;
@@ -35,7 +36,7 @@ std::string GraphGUI::GetShadderFromSource(const std::string &filepath)
 	return ss.str();
 }
 
-unsigned int GraphGUI::CompileShader(unsigned int type, const std::string &source)
+unsigned int GUIManager::CompileShader(unsigned int type, const std::string &source)
 {
 	unsigned int id = glCreateShader(type);
 	const char *src = source.c_str();
@@ -60,7 +61,7 @@ unsigned int GraphGUI::CompileShader(unsigned int type, const std::string &sourc
 	return id;
 }
 
-bool GraphGUI::CheckForError(unsigned int program, int whatToCheck)
+bool GUIManager::CheckForError(unsigned int program, int whatToCheck)
 {
 	int result;
 	glGetProgramiv(program, whatToCheck, &result);
@@ -76,25 +77,25 @@ bool GraphGUI::CheckForError(unsigned int program, int whatToCheck)
 	return true;
 }
 
-unsigned int GraphGUI::CreateShader(const std::string &vertexshader, const std::string &fragmentshader)
+unsigned int GUIManager::BindShaders(std::string vertexShader, std::string fragmentShader)
 {
-	unsigned int program = glCreateProgram();
-	unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexshader);
-	unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentshader);
+	return GUIManager::BindShaders(this->program, this->compiledShaders[vertexShader], this->compiledShaders[fragmentShader]);
+}
 
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
+unsigned int GUIManager::BindShaders(unsigned int program, const int vertexshader, const int fragmentshader)
+{
+	glAttachShader(program, vertexshader);
+	glAttachShader(program, fragmentshader);
 	glLinkProgram(program);
 	if (CheckForError(program, GL_LINK_STATUS)) return 0;
 	glValidateProgram(program);
 	if (CheckForError(program, GL_VALIDATE_STATUS)) return 0;
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-
-	return program;
+	glDeleteShader(vertexshader);
+	glDeleteShader(fragmentshader);
+	return 1;
 }
 
-void GraphGUI::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+void GUIManager::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	(void) scancode;
 	(void) action;
@@ -136,20 +137,32 @@ void GraphGUI::keyCallback(GLFWwindow *window, int key, int scancode, int action
 	}
 }
 
-void GraphGUI::runProgramLoop(Plot *plot)
+bool GUIManager::windowClosed()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	while (!glfwWindowShouldClose(this->window)) {
-		plot->draw(this->window, this->program, this->screenWidth, this->screenHeight);
-		glfwSwapBuffers(this->window);
-		// glfwPollEvents();
-		glfwWaitEvents();
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
+	return glfwWindowShouldClose(this->window);
 }
 
-void empty(GLFWwindow* window, double xpos, double ypos) {}
-int GraphGUI::prepareProgramAndWindow()
+void GUIManager::postDrawSteps()
+{
+	glfwSwapBuffers(this->window);
+	// glfwPollEvents();
+	glfwWaitEvents();
+}
+
+std::map<std::string, int> compileShaders(std::map<std::string, std::string> shaders)
+{
+	std::map<std::string, int> compiledShaders;
+	for (auto shader : shaders) {
+		std::cout << GL_VERTEX_SHADER << " " << GL_FRAGMENT_SHADER << std::endl;
+		unsigned int type = (shader.first.find("vertex") != std::string::npos) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+		std::cout << shader.first << " " << type << std::endl;
+		compiledShaders[shader.first] = GUIManager::CompileShader(type, shader.second);
+	}
+	return compiledShaders;
+}
+
+void empty(GLFWwindow *window, double xpos, double ypos) { }
+int GUIManager::prepareProgramAndWindow(std::map<std::string, std::string> shaders)
 {
 	if (!glfwInit())
 		return -1;
@@ -165,20 +178,22 @@ int GraphGUI::prepareProgramAndWindow()
 	glfwSetKeyCallback(window, this->keyCallback);
 	glfwSetCursorPosCallback(window, empty);
 
-	if (glewInit() != GLEW_OK)
+	if (glewInit() != GLEW_OK) {
 		std::cout << "Error" << std::endl;
+		return -1;
+	}
 
+	// Enable alpha for colors.
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// glEnable(GL_ALPHA_TEST);
-	// glAlphaFunc(GL_GEQUAL, 0.0);
-	std::cout << glGetString(GL_VERSION) << std::endl;
 
-	std::string vertexShaderString = this->shaders["vertex"];
-	std::string fragmentShaderString = this->shaders["fragment"];
+	int vertexShaderString = this->compiledShaders["scatter_plot_points_vertex"];
+	int fragmentShaderString = this->compiledShaders["scatter_plot_points_fragment"];
 
-	this->program = CreateShader(vertexShaderString, fragmentShaderString);
+	this->program = glCreateProgram();
+	this->compiledShaders = compileShaders(shaders);
+	this->BindShaders("scatter_plot_points_vertex", "scatter_plot_points_fragment");
 	glUseProgram(this->program);
-	
+
 	return 0;
 }
