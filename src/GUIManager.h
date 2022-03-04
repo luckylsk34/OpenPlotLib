@@ -23,7 +23,8 @@ public:
 	static std::string GetShadderFromSource(const std::string &filepath);
 	static unsigned int CompileShader(unsigned int type, const std::string &source);
 	static bool CheckForError(unsigned int program, int whatToCheck);
-	unsigned int BindShaders(std::string vertexShader, std::string fragmentShader);
+	void detachAllShaders();
+	unsigned int reBindShaders(std::string vertexShader, std::string fragmentShader);
 	static unsigned int BindShaders(unsigned int program, const int vertexshader, const int fragmentshader);
 	static void keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 	int prepareProgramAndWindow(std::map<std::string, std::string> shaders);

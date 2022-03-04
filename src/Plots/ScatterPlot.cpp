@@ -123,10 +123,12 @@ int ScatterPlot::show()
 	if (initialised < 0)
 		return -1;
 
+	app.reBindShaders("scatter_plot_points_vertex", "scatter_plot_points_fragment");
 	initialize(app, this->data);
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	while (!app.windowClosed()) {
+		// app.reBindShaders("scatter_plot_points_vertex", "scatter_plot_points_fragment");
 		this->draw();
 		app.postDrawSteps();
 		glClear(GL_COLOR_BUFFER_BIT);
