@@ -40,7 +40,6 @@ int emptyGraph(py::list x_data, py::list y_data)
 	// Ray ray = Ray({ 400, 450 }, 50);
 	// Scene scene = Scene(circles, ray);
 
-
 	std::vector<Point> points;
 	// for (int i = 0; i < len(data); i++) {
 	// 	points.push_back(Point(data[i][0], data[i][1]));
@@ -50,7 +49,7 @@ int emptyGraph(py::list x_data, py::list y_data)
 	for (int i = 0; i < x_.size(); i++) {
 		points.push_back(Point(x_[i], y_[i]));
 	}
-	
+
 	// auto points = to_std_vector<float>(points);
 	Plot *plot1 = new ScatterPlot(points);
 	plot1->show();

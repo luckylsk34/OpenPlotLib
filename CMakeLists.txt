@@ -35,6 +35,8 @@ target_sources(OpenPlotLibTest
     PRIVATE
         src/GUIManager.cpp
         src/GUIManager.h
+        src/VertexBuffer.h
+        src/VertexBuffer.cpp
         src/ReflectRNG/Circle.cpp
         src/ReflectRNG/Ray.cpp
         src/ReflectRNG/Scene.cpp
