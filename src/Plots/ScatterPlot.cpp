@@ -37,66 +37,60 @@ void initialize(GUIManager &app, std::vector<Point> &points)
 		if (maxy < point.y)
 			maxy = point.y;
 	}
-	// std::cout << "minx: " << minx << " maxx: " << maxx << std::endl;
-	// std::cout << "miny: " << miny << " maxy: " << maxy << std::endl;
 	// Seperation of axis from the boundary of the window in pixels.
 	int separation = 30;
 	// Radius in pixels.
-	int radiusPixel = 5;
+	int radiusPixel = 10;
 	// Radius in pixels.
 	// float radius = (float) radiusPixel / app.screenWidth;
-	float radius = 0.01;
+	float x_radius = (float) radiusPixel / app.screenWidth;
+	float y_radius = (float) radiusPixel / app.screenHeight;
+
 	for (auto point : points | boost::adaptors::indexed(0)) {
 		// transform the point
-		// point.x *= (float)(app.screenWidth - 2 * separation) / (maxx - minx);
-		// point.y *= (float)(app.screenHeight - 2 * separation) / (maxy - miny);
-		// point.x -= separation;
-		// point.y -= separation;
-		// std::cout << "point-" << point.index() << ": " << point.value().x << " " << point.value().y << std::endl;
 		point.value().x -= minx;
 		point.value().y -= miny;
 		point.value().x /= (maxx - minx);
 		point.value().y /= (maxy - miny);
-		// std::cout << "point-" << point.index() << ": " << point.value().x << " " << point.value().y << std::endl;
 		point.value().x -= 0.5;
 		point.value().y -= 0.5;
-		// std::cout << "point-" << point.index() << ": " << point.value().x << " " << point.value().y << std::endl;
+		
 		point.value().x *= (float) (app.screenWidth - 2 * separation) / app.screenWidth;
 		point.value().y *= (float) (app.screenHeight - 2 * separation) / app.screenHeight;
-		// std::cout << "point-" << point.index() << ": " << point.value().x << " " << point.value().y << std::endl;
+		
 		// add the 6 vertices for the triangles.
-		quad[30 * point.index() + 0] = point.value().x + radius;
-		quad[30 * point.index() + 1] = point.value().y - radius;
+		quad[30 * point.index() + 0] = point.value().x + x_radius;
+		quad[30 * point.index() + 1] = point.value().y - y_radius;
 		quad[30 * point.index() + 2] = 0;
 		quad[30 * point.index() + 3] = 1;
 		quad[30 * point.index() + 4] = -1;
 
-		quad[30 * point.index() + 5] = point.value().x + radius;
-		quad[30 * point.index() + 6] = point.value().y + radius;
+		quad[30 * point.index() + 5] = point.value().x + x_radius;
+		quad[30 * point.index() + 6] = point.value().y + y_radius;
 		quad[30 * point.index() + 7] = 0;
 		quad[30 * point.index() + 8] = 1;
 		quad[30 * point.index() + 9] = 1;
 
-		quad[30 * point.index() + 10] = point.value().x - radius;
-		quad[30 * point.index() + 11] = point.value().y + radius;
+		quad[30 * point.index() + 10] = point.value().x - x_radius;
+		quad[30 * point.index() + 11] = point.value().y + y_radius;
 		quad[30 * point.index() + 12] = 0;
 		quad[30 * point.index() + 13] = -1;
 		quad[30 * point.index() + 14] = 1;
 
-		quad[30 * point.index() + 15] = point.value().x - radius;
-		quad[30 * point.index() + 16] = point.value().y + radius;
+		quad[30 * point.index() + 15] = point.value().x - x_radius;
+		quad[30 * point.index() + 16] = point.value().y + y_radius;
 		quad[30 * point.index() + 17] = 0;
 		quad[30 * point.index() + 18] = -1;
 		quad[30 * point.index() + 19] = 1;
 
-		quad[30 * point.index() + 20] = point.value().x - radius;
-		quad[30 * point.index() + 21] = point.value().y - radius;
+		quad[30 * point.index() + 20] = point.value().x - x_radius;
+		quad[30 * point.index() + 21] = point.value().y - y_radius;
 		quad[30 * point.index() + 22] = 0;
 		quad[30 * point.index() + 23] = -1;
 		quad[30 * point.index() + 24] = -1;
 
-		quad[30 * point.index() + 25] = point.value().x + radius;
-		quad[30 * point.index() + 26] = point.value().y - radius;
+		quad[30 * point.index() + 25] = point.value().x + x_radius;
+		quad[30 * point.index() + 26] = point.value().y - y_radius;
 		quad[30 * point.index() + 27] = 0;
 		quad[30 * point.index() + 28] = 1;
 		quad[30 * point.index() + 29] = -1;
