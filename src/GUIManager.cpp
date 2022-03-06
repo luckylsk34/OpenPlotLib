@@ -34,11 +34,13 @@ GUIManager::GUIManager(int screenWidth, int screenHeight, std::map<std::string, 
 
 GUIManager::~GUIManager()
 {
-	this->detachAllShaders();
 	for (auto compiledShader : this->compiledShaders) {
 		glDeleteShader(compiledShader.second);
 	}
-	glDeleteProgram(this->program);
+	for (auto program : this->programs) {
+		this->detachAllShaders(program.first);
+		glDeleteProgram(program.second);
+	}
 	glfwTerminate();
 }
 
@@ -76,6 +78,16 @@ unsigned int GUIManager::CompileShader(unsigned int type, const std::string &sou
 	return id;
 }
 
+void GUIManager::create_program(const unsigned int program_name)
+{
+	this->programs[program_name] = glCreateProgram();
+}
+
+void GUIManager::use_program(const unsigned int program_name)
+{
+	glUseProgram(this->programs[program_name]);
+}
+
 bool GUIManager::CheckForError(unsigned int program, int whatToCheck)
 {
 	int result;
@@ -92,33 +104,40 @@ bool GUIManager::CheckForError(unsigned int program, int whatToCheck)
 	return true;
 }
 
-void GUIManager::detachAllShaders()
+void GUIManager::detachAllShaders(const unsigned int program_name)
 {
 	int maxCount = 10;
 	int count;
 	GLuint *shaders = new GLuint[maxCount];
-	glGetAttachedShaders(this->program, maxCount, &count, shaders);
+	auto program = this->programs[program_name];
+	glGetAttachedShaders(program, maxCount, &count, shaders);
 	for (int i = 0; i < count; ++i)
-		glDetachShader(this->program, shaders[i]);
+		glDetachShader(program, shaders[i]);
 	std::cout << "Detached " << count << " shaders" << std::endl;
 	delete[] shaders;
 }
 
-unsigned int GUIManager::reBindShaders(std::string vertexShader, std::string fragmentShader)
+unsigned int GUIManager::reBindShaders(const unsigned int program_name, std::string vertexShader, std::string fragmentShader)
 {
-	this->detachAllShaders();
+	this->detachAllShaders(program_name);
 	int compiledVertexShader = this->compiledShaders[vertexShader];
 	int compiledFragmentShader = this->compiledShaders[fragmentShader];
-	auto ret =  GUIManager::BindShaders(this->program, compiledVertexShader, compiledFragmentShader);
-	glUseProgram(this->program);
+	auto ret = GUIManager::BindShaders(program_name, compiledVertexShader, compiledFragmentShader);
+	this->use_program(program_name);
 	return ret;
 }
 
-unsigned int GUIManager::BindShaders(unsigned int program, const int vertexshader, const int fragmentshader)
+unsigned int GUIManager::BindShaders(unsigned int program_name, const std::string vertex_shader, const std::string fragment_shader)
 {
-	// std::cout << "Bind Shaders" << vertexshader << std::endl;
+	int compiledVertexShader = this->compiledShaders[vertex_shader];
+	int compiledFragmentShader = this->compiledShaders[fragment_shader];
+	return GUIManager::BindShaders(program_name, compiledVertexShader, compiledFragmentShader);
+}
+
+unsigned int GUIManager::BindShaders(unsigned int program_name, const int vertexshader, const int fragmentshader)
+{
+	auto program = this->programs[program_name];
 	glAttachShader(program, vertexshader);
-	// std::cout << "Bind Shaders" << fragmentshader << std::endl;
 	glAttachShader(program, fragmentshader);
 	glLinkProgram(program);
 	if (CheckForError(program, GL_LINK_STATUS)) return 0;
@@ -225,8 +244,5 @@ int GUIManager::prepareProgramAndWindow(std::map<std::string, std::string> shade
 	// Enable alpha for colors.
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	this->program = glCreateProgram();
-
 	return 0;
 }

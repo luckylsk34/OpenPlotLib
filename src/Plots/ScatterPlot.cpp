@@ -1,4 +1,5 @@
 #include "../GUIManager.h"
+#include "../VertexBuffer.h"
 #include "../shaders.h"
 #include "Plot.h"
 #include <boost/range/adaptor/indexed.hpp>
@@ -6,12 +7,12 @@
 #include <stdint.h>
 #include <string>
 
-#define DEFAULT_SCREEN_WIDTH 800
-#define DEFAULT_SCREEN_HEIGHT 800
+#define DEFAULT_SCREEN_WIDTH 500
+#define DEFAULT_SCREEN_HEIGHT 400
 #define PI 3.1415926f
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-void initialize(GUIManager &app, std::vector<Point> &points)
+float *create_point_vertices(GUIManager &app, std::vector<Point> &points)
 {
 
 	// Use a Vertex Array Object
@@ -95,20 +96,13 @@ void initialize(GUIManager &app, std::vector<Point> &points)
 		quad[30 * point.index() + 28] = 1;
 		quad[30 * point.index() + 29] = -1;
 	}
-
-	unsigned int glBuffer;
-	glGenBuffers(1, &glBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, glBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * points.size() * 30, quad, GL_STATIC_DRAW);
-
-	int ATTRIB_VERTEX = glGetAttribLocation(app.program, "vertex");
-	int ATTRIB_VALUE = glGetAttribLocation(app.program, "value");
-
-	glEnableVertexAttribArray(ATTRIB_VERTEX);
-	glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 20, 0);
-	glEnableVertexAttribArray(ATTRIB_VALUE);
-	glVertexAttribPointer(ATTRIB_VALUE, 2, GL_FLOAT, GL_FALSE, 20, BUFFER_OFFSET(12));
+	return quad;
 }
+
+enum scatter_plot_programs {
+	points_program,
+	axis_program
+};
 
 int ScatterPlot::show()
 {
@@ -117,13 +111,49 @@ int ScatterPlot::show()
 	if (initialised < 0)
 		return -1;
 
-	app.reBindShaders("scatter_plot_points_vertex", "scatter_plot_points_fragment");
-	initialize(app, this->data);
+	VertexBuffer vbo;
+	float *quad = new float[this->data.size() * 30 + 8];
+	auto pointquad = create_point_vertices(app, this->data);
+	for (int i = 0; i < this->data.size() * 30; i++) {
+		quad[i] = pointquad[i];
+	}
+	float axisquad[] = { -0.9, -0.9,
+						 0.9, -0.9,
+		                 -0.9, -0.9,
+		                 -0.9, 0.9, };
+	for (int i = 0; i < 8; i++) {
+		quad[this->data.size() * 30 + i] = axisquad[i];
+	}
+	vbo.send_data(quad, (8 + this->data.size() * 30) * 4);
+
+	app.create_program(points_program);
+	app.BindShaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
+	app.create_program(axis_program);
+	app.BindShaders(axis_program, "empty_vertex", "empty_fragment");
 
 	glClear(GL_COLOR_BUFFER_BIT);
 	while (!app.windowClosed()) {
-		// app.reBindShaders("scatter_plot_points_vertex", "scatter_plot_points_fragment");
-		this->draw();
+		glClearColor(1, 1, 1, 1);
+
+		app.use_program(points_program);
+		auto program = app.programs[points_program];
+		int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
+		int ATTRIB_VALUE = glGetAttribLocation(program, "value");
+
+		glEnableVertexAttribArray(ATTRIB_VERTEX);
+		glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 20, 0);
+		glEnableVertexAttribArray(ATTRIB_VALUE);
+		glVertexAttribPointer(ATTRIB_VALUE, 2, GL_FLOAT, GL_FALSE, 20, BUFFER_OFFSET(12));
+		glDrawArrays(GL_TRIANGLES, 0, this->data.size() * 6);
+
+		app.use_program(axis_program);
+		program = app.programs[axis_program];
+		ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
+
+		glEnableVertexAttribArray(ATTRIB_VERTEX);
+		glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 8, BUFFER_OFFSET(this->data.size() * 30 * 4));
+		glDrawArrays(GL_LINES, 0, 4);
+
 		app.postDrawSteps();
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
