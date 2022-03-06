@@ -55,6 +55,8 @@ float *create_point_vertices(GUIManager &app, std::vector<Point> &points)
 		point.value().y /= (maxy - miny);
 		point.value().x -= 0.5;
 		point.value().y -= 0.5;
+		point.value().x *= 1.5;
+		point.value().y *= 1.5;
 		
 		point.value().x *= (float) (app.screenWidth - 2 * separation) / app.screenWidth;
 		point.value().y *= (float) (app.screenHeight - 2 * separation) / app.screenHeight;
