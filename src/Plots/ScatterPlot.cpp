@@ -129,12 +129,12 @@ int ScatterPlot::show()
 	vbo.send_data(quad, (8 + this->data.size() * 30) * 4);
 
 	app.create_program(points_program);
-	app.BindShaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
+	app.bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
 	app.create_program(axis_program);
-	app.BindShaders(axis_program, "empty_vertex", "empty_fragment");
+	app.bind_shaders(axis_program, "empty_vertex", "empty_fragment");
 
 	glClear(GL_COLOR_BUFFER_BIT);
-	while (!app.windowClosed()) {
+	while (!app.window_closed()) {
 		glClearColor(1, 1, 1, 1);
 
 		app.use_program(points_program);
@@ -156,7 +156,7 @@ int ScatterPlot::show()
 		glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 8, BUFFER_OFFSET(this->data.size() * 30 * 4));
 		glDrawArrays(GL_LINES, 0, 4);
 
-		app.postDrawSteps();
+		app.post_draw_steps();
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 	return 0;
