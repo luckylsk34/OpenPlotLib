@@ -57,10 +57,10 @@ float *create_point_vertices(GUIManager &app, std::vector<Point> &points)
 		point.value().y -= 0.5;
 		point.value().x *= 1.5;
 		point.value().y *= 1.5;
-		
+
 		point.value().x *= (float) (app.screenWidth - 2 * separation) / app.screenWidth;
 		point.value().y *= (float) (app.screenHeight - 2 * separation) / app.screenHeight;
-		
+
 		// add the 6 vertices for the triangles.
 		quad[30 * point.index() + 0] = point.value().x + x_radius;
 		quad[30 * point.index() + 1] = point.value().y - y_radius;
@@ -120,9 +120,9 @@ int ScatterPlot::show()
 		quad[i] = pointquad[i];
 	}
 	float axisquad[] = { -0.9, -0.9,
-						 0.9, -0.9,
+		                 0.9, -0.9,
 		                 -0.9, -0.9,
-		                 -0.9, 0.9, };
+		                 -0.9, 0.9 };
 	for (int i = 0; i < 8; i++) {
 		quad[this->data.size() * 30 + i] = axisquad[i];
 	}

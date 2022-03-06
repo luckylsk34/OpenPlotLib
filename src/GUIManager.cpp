@@ -214,7 +214,6 @@ MessageCallback(GLenum source,
 	        type, severity, message);
 }
 
-
 void empty(GLFWwindow *window, double xpos, double ypos) { }
 int GUIManager::prepare_program_and_window(std::map<std::string, std::string> shaders)
 {
