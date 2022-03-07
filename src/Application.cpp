@@ -10,21 +10,21 @@ int main(int argc, char *argv[])
 	po::notify(vm);
 
 	// // float circleRadius = 60.0;
-	std::vector<Point> points { Point({ 1000, 100 }),
-		                        Point({ 1000, 300 }),
-		                        Point({ 1000, 500 }),
-		                        Point({ 1000, 700 }),
-		                        Point({ 1000, 900 }),
-		                        Point({ 1200, 000 }),
-		                        Point({ 1200, 200 }),
-		                        Point({ 1200, 400 }),
-		                        Point({ 1200, 600 }),
-		                        Point({ 1200, 800 }),
-		                        Point({ 1400, 100 }),
-		                        Point({ 1400, 300 }),
-		                        Point({ 1400, 500 }),
-		                        Point({ 1400, 700 }),
-		                        Point({ 1400, 900 }) };
+	std::vector<Point> points { Point({ 10, 100 }),
+		                        Point({ 10.2, 300 }),
+		                        Point({ 10.6, 500 }),
+		                        Point({ 11, 700 }),
+		                        Point({ 11.4, 900 }),
+		                        Point({ 12.1, 1000 }),
+		                        Point({ 12.3, 1200 }),
+		                        Point({ 12.7, 1400 }),
+		                        Point({ 13.3, 1600 }),
+		                        Point({ 13.7, 1710 }),
+		                        Point({ 14, 1700 }),
+		                        Point({ 14.3, 1600 }),
+		                        Point({ 14.7, 1500 }),
+		                        Point({ 15.1, 1400 }),
+		                        Point({ 15.7, 1300 }) };
 	// std::vector<Point> points { Point({ 10, 10 }),
 	// 	                        Point({ 20, 20 }),
 	// 	                        Point({ 30, 30 }),
@@ -34,9 +34,8 @@ int main(int argc, char *argv[])
 	// Plot *plot = new _2DPlot();
 
 	auto plot1 = std::make_unique<ScatterPlot>(points, vm);
-	// Plot *plot1 = new ScatterPlot(points, vm);
 	plot1->show();
-	//_2DPlot plot;
+
 
 	return 0;
 }

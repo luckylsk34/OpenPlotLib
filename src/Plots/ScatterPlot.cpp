@@ -2,10 +2,13 @@
 #include "../VertexBuffer.h"
 #include "../shaders.h"
 #include "Plot.h"
+#include <boost/math/statistics/linear_regression.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <iostream>
 #include <stdint.h>
 #include <string>
+
+namespace stats = boost::math::statistics;
 
 #define DEFAULT_SCREEN_WIDTH 500
 #define DEFAULT_SCREEN_HEIGHT 400
@@ -14,7 +17,6 @@
 
 float *create_point_vertices(GUIManager &app, std::vector<Point> &points)
 {
-
 	// Use a Vertex Array Object
 	// GLuint vao;
 	// glGenVertexArrays(1, &vao);
@@ -114,19 +116,38 @@ int ScatterPlot::show()
 		return -1;
 
 	VertexBuffer vbo;
-	float *quad = new float[this->data.size() * 30 + 8];
+	float *quad = new float[this->data.size() * 30 + 8 + 4];
 	auto pointquad = create_point_vertices(app, this->data);
 	for (int i = 0; i < this->data.size() * 30; i++) {
 		quad[i] = pointquad[i];
 	}
-	float axisquad[] = { -0.9, -0.9,
-		                 0.9, -0.9,
-		                 -0.9, -0.9,
-		                 -0.9, 0.9 };
+	float axisquad[] = { -0.85, -0.85,
+		                 0.85, -0.85,
+		                 -0.85, -0.85,
+		                 -0.85, 0.85 };
 	for (int i = 0; i < 8; i++) {
 		quad[this->data.size() * 30 + i] = axisquad[i];
 	}
-	vbo.send_data(quad, (8 + this->data.size() * 30) * 4);
+
+	auto x = std::vector<float>(this->data.size());
+	auto y = std::vector<float>(this->data.size());
+	for (auto point : this->data | boost::adaptors::indexed(0)) {
+		x[point.index()] = point.value().x;
+		y[point.index()] = point.value().y;
+	}
+
+	auto [c0, c1] = stats::simple_ordinary_least_squares(x, y);
+	std::cout << "f(x) = " << c0 << " + " << c1 << "*x"
+			  << "\n";
+	std::cout << "f(10) = " << c0 + c1 * 10 << "\n";
+	std::cout << "f(15.7) = " << c0 + c1 * 15.7 << "\n";
+
+	quad[this->data.size() * 30 + 8] = this->data[0].x;
+	quad[this->data.size() * 30 + 8 + 1] = c0 + c1 * this->data[0].x;
+	quad[this->data.size() * 30 + 8 + 2] = this->data[this->data.size() - 1].x;
+	quad[this->data.size() * 30 + 8 + 3] = c0 + c1 * this->data[this->data.size() - 1].x;
+
+	vbo.send_data(quad, (this->data.size() * 30 + 8 + 4) * 4);
 
 	app.create_program(points_program);
 	app.bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
@@ -154,7 +175,11 @@ int ScatterPlot::show()
 
 		glEnableVertexAttribArray(ATTRIB_VERTEX);
 		glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 8, BUFFER_OFFSET(this->data.size() * 30 * 4));
+		// glEnable(GL_LINE_SMOOTH);
 		glDrawArrays(GL_LINES, 0, 4);
+		// glLineWidth(2);
+		glDrawArrays(GL_LINES, 4, 2);
+		// glDisable(GL_LINE_SMOOTH);
 
 		app.post_draw_steps();
 		glClear(GL_COLOR_BUFFER_BIT);

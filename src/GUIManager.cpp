@@ -220,6 +220,9 @@ int GUIManager::prepare_program_and_window(std::map<std::string, std::string> sh
 	if (!glfwInit())
 		return -1;
 
+	// glfwWindowHint(GLFW_SAMPLES, 4);
+	// glEnable(GL_MULTISAMPLE);
+
 	this->window = glfwCreateWindow(this->screenWidth, this->screenHeight, "Hello World", nullptr, nullptr);
 	if (!this->window) {
 		glfwTerminate();
