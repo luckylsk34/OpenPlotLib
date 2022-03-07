@@ -25,7 +25,7 @@ public:
 		: x(x)
 		, y(y) {};
 
-	float length() { return std::sqrt(pow(x, 2) + pow(y, 2)); }
+	float length() { return (float) std::sqrt(pow(x, 2) + pow(y, 2)); }
 	float dot(Point const &right) { return x * right.x + y * right.y; }
 	Point operator+(Point const &right) { return Point(x + right.x, y + right.y); }
 	Point operator-(Point const &right) { return Point(x - right.x, y - right.y); }

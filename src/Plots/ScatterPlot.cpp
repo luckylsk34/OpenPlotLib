@@ -29,7 +29,7 @@ float *create_point_vertices(GUIManager &app, std::vector<Point> &points)
 	float top = 0.5;
 	float *quad = new float[points.size() * 30];
 
-	int minx = INT_MAX, maxx = INT_MIN, miny = INT_MAX, maxy = INT_MIN;
+	float minx = FLT_MAX, maxx = FLT_MIN, miny = FLT_MAX, maxy = FLT_MIN;
 	for (auto point : points) {
 		if (minx > point.x)
 			minx = point.x;
@@ -121,10 +121,10 @@ int ScatterPlot::show()
 	for (int i = 0; i < this->data.size() * 30; i++) {
 		quad[i] = pointquad[i];
 	}
-	float axisquad[] = { -0.85, -0.85,
-		                 0.85, -0.85,
-		                 -0.85, -0.85,
-		                 -0.85, 0.85 };
+	float axisquad[] = { -0.85f, -0.85f,
+		                 0.85f, -0.85f,
+		                 -0.85f, -0.85f,
+		                 -0.85f, 0.85f };
 	for (int i = 0; i < 8; i++) {
 		quad[this->data.size() * 30 + i] = axisquad[i];
 	}
@@ -147,7 +147,7 @@ int ScatterPlot::show()
 	quad[this->data.size() * 30 + 8 + 2] = this->data[this->data.size() - 1].x;
 	quad[this->data.size() * 30 + 8 + 3] = c0 + c1 * this->data[this->data.size() - 1].x;
 
-	vbo.send_data(quad, (this->data.size() * 30 + 8 + 4) * 4);
+	vbo.send_data(quad, (int) (this->data.size() * 30 + 8 + 4) * 4);
 
 	app.create_program(points_program);
 	app.bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
@@ -167,7 +167,7 @@ int ScatterPlot::show()
 		glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 20, 0);
 		glEnableVertexAttribArray(ATTRIB_VALUE);
 		glVertexAttribPointer(ATTRIB_VALUE, 2, GL_FLOAT, GL_FALSE, 20, BUFFER_OFFSET(12));
-		glDrawArrays(GL_TRIANGLES, 0, this->data.size() * 6);
+		glDrawArrays(GL_TRIANGLES, 0, (int) this->data.size() * 6);
 
 		app.use_program(axis_program);
 		program = app.programs[axis_program];
@@ -194,7 +194,7 @@ void ScatterPlot::draw()
 	// double posx, posy;
 	// glfwGetCursorPos(window, &posx, &posy);
 	// Draw Points
-	glDrawArrays(GL_TRIANGLES, 0, this->data.size() * 6);
+	glDrawArrays(GL_TRIANGLES, 0, (int) this->data.size() * 6);
 	// Draw Axis
 	// Draw Legend
 }
