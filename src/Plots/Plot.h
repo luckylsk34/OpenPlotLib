@@ -106,4 +106,7 @@ public:
 
 	int show() override;
 	void draw() override;
+	void draw_points();
+	void draw_axes();
+	void draw_legend();
 };

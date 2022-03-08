@@ -111,23 +111,22 @@ enum scatter_plot_programs {
 int ScatterPlot::show()
 {
 	int initialised;
-	auto app = GUIManager(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, shaders, initialised);
+	this->guiManager = GUIManager(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, shaders, initialised);
 	if (initialised < 0)
 		return -1;
 
 	VertexBuffer vbo;
 	float *quad = new float[this->data.size() * 30 + 8 + 4];
-	auto pointquad = create_point_vertices(app, this->data);
-	for (int i = 0; i < this->data.size() * 30; i++) {
+	auto pointquad = create_point_vertices(this->guiManager, this->data);
+	for (int i = 0; i < this->data.size() * 30; i++)
 		quad[i] = pointquad[i];
-	}
+
 	float axisquad[] = { -0.85f, -0.85f,
 		                 0.85f, -0.85f,
 		                 -0.85f, -0.85f,
 		                 -0.85f, 0.85f };
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 8; i++)
 		quad[this->data.size() * 30 + i] = axisquad[i];
-	}
 
 	auto x = std::vector<float>(this->data.size());
 	auto y = std::vector<float>(this->data.size());
@@ -149,39 +148,15 @@ int ScatterPlot::show()
 
 	vbo.send_data(quad, (int) (this->data.size() * 30 + 8 + 4) * 4);
 
-	app.create_program(points_program);
-	app.bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
-	app.create_program(axis_program);
-	app.bind_shaders(axis_program, "empty_vertex", "empty_fragment");
+	this->guiManager.create_program(points_program);
+	this->guiManager.bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
+	this->guiManager.create_program(axis_program);
+	this->guiManager.bind_shaders(axis_program, "empty_vertex", "empty_fragment");
 
 	glClear(GL_COLOR_BUFFER_BIT);
-	while (!app.window_closed()) {
-		glClearColor(1, 1, 1, 1);
-
-		app.use_program(points_program);
-		auto program = app.programs[points_program];
-		int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
-		int ATTRIB_VALUE = glGetAttribLocation(program, "value");
-
-		glEnableVertexAttribArray(ATTRIB_VERTEX);
-		glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 20, 0);
-		glEnableVertexAttribArray(ATTRIB_VALUE);
-		glVertexAttribPointer(ATTRIB_VALUE, 2, GL_FLOAT, GL_FALSE, 20, BUFFER_OFFSET(12));
-		glDrawArrays(GL_TRIANGLES, 0, (int) this->data.size() * 6);
-
-		app.use_program(axis_program);
-		program = app.programs[axis_program];
-		ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
-
-		glEnableVertexAttribArray(ATTRIB_VERTEX);
-		glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 8, BUFFER_OFFSET(this->data.size() * 30 * 4));
-		// glEnable(GL_LINE_SMOOTH);
-		glDrawArrays(GL_LINES, 0, 4);
-		// glLineWidth(2);
-		glDrawArrays(GL_LINES, 4, 2);
-		// glDisable(GL_LINE_SMOOTH);
-
-		app.post_draw_steps();
+	while (!this->guiManager.window_closed()) {
+		this->draw();
+		this->guiManager.post_draw_steps();
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 	return 0;
@@ -193,8 +168,40 @@ void ScatterPlot::draw()
 	glClearColor(1, 1, 1, 1);
 	// double posx, posy;
 	// glfwGetCursorPos(window, &posx, &posy);
-	// Draw Points
-	glDrawArrays(GL_TRIANGLES, 0, (int) this->data.size() * 6);
-	// Draw Axis
+	this->draw_points();
+	this->draw_axes();
 	// Draw Legend
+}
+
+void ScatterPlot::draw_points()
+{
+	this->guiManager.use_program(points_program);
+	int program = this->guiManager.programs[points_program];
+	int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
+	int ATTRIB_VALUE = glGetAttribLocation(program, "value");
+
+	glEnableVertexAttribArray(ATTRIB_VERTEX);
+	glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 20, 0);
+	glEnableVertexAttribArray(ATTRIB_VALUE);
+	glVertexAttribPointer(ATTRIB_VALUE, 2, GL_FLOAT, GL_FALSE, 20, BUFFER_OFFSET(12));
+	glDrawArrays(GL_TRIANGLES, 0, (int) this->data.size() * 6);
+}
+
+void ScatterPlot::draw_axes()
+{
+	this->guiManager.use_program(axis_program);
+	int program = this->guiManager.programs[axis_program];
+	int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
+
+	glEnableVertexAttribArray(ATTRIB_VERTEX);
+	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 8, BUFFER_OFFSET(this->data.size() * 30 * 4));
+	// glEnable(GL_LINE_SMOOTH);
+	glDrawArrays(GL_LINES, 0, 4);
+	// glLineWidth(2);
+	glDrawArrays(GL_LINES, 4, 2);
+	// glDisable(GL_LINE_SMOOTH);
+}
+
+void ScatterPlot::draw_legend()
+{
 }
