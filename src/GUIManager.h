@@ -9,15 +9,22 @@
 
 class GUIManager
 {
+private:
+	GUIManager();
+
 public:
 	int screenWidth, screenHeight;
 	std::map<std::string, int> compiledShaders;
 	GLFWwindow *window;
 	std::map<int, int> programs;
+	static GUIManager *instance;
 
-	GUIManager();
-	GUIManager(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised);
+	GUIManager(const GUIManager &guiManager) = delete;
+	GUIManager& operator=(const GUIManager &guiManager) = delete;
+	
+	void start_window(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised);
 	~GUIManager();
+	static GUIManager* get_instance();
 	bool window_closed();
 	void post_draw_steps();
 	static bool check_for_error(unsigned int program, int whatToCheck);

@@ -111,13 +111,14 @@ enum scatter_plot_programs {
 int ScatterPlot::show()
 {
 	int initialised;
-	this->guiManager = GUIManager(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, shaders, initialised);
+	this->guiManager = GUIManager::get_instance();
+	this->guiManager->start_window(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, shaders, initialised);
 	if (initialised < 0)
 		return -1;
 
 	VertexBuffer vbo;
 	float *quad = new float[this->data.size() * 30 + 8 + 4];
-	auto pointquad = create_point_vertices(this->guiManager, this->data);
+	auto pointquad = create_point_vertices(*this->guiManager, this->data);
 	for (int i = 0; i < this->data.size() * 30; i++)
 		quad[i] = pointquad[i];
 
@@ -148,15 +149,16 @@ int ScatterPlot::show()
 
 	vbo.send_data(quad, (int) (this->data.size() * 30 + 8 + 4) * 4);
 
-	this->guiManager.create_program(points_program);
-	this->guiManager.bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
-	this->guiManager.create_program(axis_program);
-	this->guiManager.bind_shaders(axis_program, "empty_vertex", "empty_fragment");
+	this->guiManager->create_program(points_program);
+	this->guiManager->bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
+	this->guiManager->create_program(axis_program);
+	this->guiManager->bind_shaders(axis_program, "empty_vertex", "empty_fragment");
 
 	glClear(GL_COLOR_BUFFER_BIT);
-	while (!this->guiManager.window_closed()) {
+	while (!this->guiManager->window_closed()) {
+		glClearColor(1, 1, 1, 1);
 		this->draw();
-		this->guiManager.post_draw_steps();
+		this->guiManager->post_draw_steps();
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 	return 0;
@@ -175,8 +177,8 @@ void ScatterPlot::draw()
 
 void ScatterPlot::draw_points()
 {
-	this->guiManager.use_program(points_program);
-	int program = this->guiManager.programs[points_program];
+	this->guiManager->use_program(points_program);
+	int program = this->guiManager->programs[points_program];
 	int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
 	int ATTRIB_VALUE = glGetAttribLocation(program, "value");
 
@@ -189,8 +191,8 @@ void ScatterPlot::draw_points()
 
 void ScatterPlot::draw_axes()
 {
-	this->guiManager.use_program(axis_program);
-	int program = this->guiManager.programs[axis_program];
+	this->guiManager->use_program(axis_program);
+	int program = this->guiManager->programs[axis_program];
 	int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
 
 	glEnableVertexAttribArray(ATTRIB_VERTEX);

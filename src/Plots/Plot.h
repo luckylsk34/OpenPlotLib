@@ -67,7 +67,7 @@ inline Range<T>::Range()
 class Plot
 {
 public:
-	GUIManager guiManager;
+	GUIManager *guiManager;
 
 	virtual ~Plot() = default;
 

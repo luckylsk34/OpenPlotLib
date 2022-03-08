@@ -11,6 +11,16 @@
 
 #define SCREENSHOT_PNG_PATH "screenshot.png"
 
+GUIManager *GUIManager::instance = nullptr;
+
+GUIManager* GUIManager::get_instance()
+{
+	if (!instance)
+      	instance = new GUIManager;
+	return instance;
+}
+
+
 GUIManager::GUIManager() { }
 
 std::map<std::string, int> compile_shaders(std::map<std::string, std::string> shaders)
@@ -23,7 +33,7 @@ std::map<std::string, int> compile_shaders(std::map<std::string, std::string> sh
 	return compiledShaders;
 }
 
-GUIManager::GUIManager(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised)
+void GUIManager::start_window(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised)
 {
 	this->screenWidth = screenWidth;
 	this->screenHeight = screenHeight;
@@ -34,9 +44,8 @@ GUIManager::GUIManager(int screenWidth, int screenHeight, std::map<std::string, 
 
 GUIManager::~GUIManager()
 {
-	for (auto compiledShader : this->compiledShaders) {
+	for (auto compiledShader : this->compiledShaders)
 		glDeleteShader(compiledShader.second);
-	}
 	for (auto program : this->programs) {
 		this->detach_all_shaders(program.first);
 		glDeleteProgram(program.second);
