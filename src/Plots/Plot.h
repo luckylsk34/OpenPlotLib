@@ -27,8 +27,16 @@ public:
 
 	float length() { return (float) std::sqrt(pow(x, 2) + pow(y, 2)); }
 	float dot(Point const &right) { return x * right.x + y * right.y; }
-	Point operator+(Point const &right) { return Point(x + right.x, y + right.y); }
-	Point operator-(Point const &right) { return Point(x - right.x, y - right.y); }
+	Point operator+(const Point &right) { return Point(x + right.x, y + right.y); }
+	Point operator-(const Point &right) { return Point(x - right.x, y - right.y); }
+	Point operator*(const float scale) { return Point(x * scale, y * scale); }
+	Point operator/(const float scale) { return Point(x / scale, y / scale); }
+	void operator+=(const Point &right) { x += right.x, y += right.y; }
+	void operator-=(const Point &right) { x -= right.x, y -= right.y; }
+	void operator*=(const float scale) { x *= scale, y *= scale; }
+	void operator/=(const float scale) { x /= scale, y /= scale; }
+	void scale(float scale) { x *= scale, y *= scale; }
+	void scale(float scale_x, float scale_y) { x *= scale_x, y *= scale_y; }
 };
 
 template <typename T>

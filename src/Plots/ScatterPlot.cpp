@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdint.h>
 #include <string>
+#include <tuple>
 
 namespace stats = boost::math::statistics;
 
@@ -15,7 +16,7 @@ namespace stats = boost::math::statistics;
 #define PI 3.1415926f
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-float *create_point_vertices(GUIManager &app, std::vector<Point> &points)
+std::tuple<float*, float, float, float, float> create_point_vertices(GUIManager &app, std::vector<Point> &points)
 {
 	// Use a Vertex Array Object
 	// GLuint vao;
@@ -49,58 +50,55 @@ float *create_point_vertices(GUIManager &app, std::vector<Point> &points)
 	float x_radius = (float) radiusPixel / app.screenWidth;
 	float y_radius = (float) radiusPixel / app.screenHeight;
 
-	for (auto point : points | boost::adaptors::indexed(0)) {
+	for (auto [index, point] : points | boost::adaptors::indexed(0)) {
 		// transform the point
-		point.value().x -= minx;
-		point.value().y -= miny;
-		point.value().x /= (maxx - minx);
-		point.value().y /= (maxy - miny);
-		point.value().x -= 0.5;
-		point.value().y -= 0.5;
-		point.value().x *= 1.5;
-		point.value().y *= 1.5;
+		point -= Point(minx, miny);
+		point.scale(1/(maxx - minx), 1/(maxy - miny));
+		point -= Point(0.5, 0.5);
+		point.scale(1.5);
 
-		point.value().x *= (float) (app.screenWidth - 2 * separation) / app.screenWidth;
-		point.value().y *= (float) (app.screenHeight - 2 * separation) / app.screenHeight;
+		point.x *= (float) (app.screenWidth - 2 * separation) / app.screenWidth;
+		point.y *= (float) (app.screenHeight - 2 * separation) / app.screenHeight;
 
 		// add the 6 vertices for the triangles.
-		quad[30 * point.index() + 0] = point.value().x + x_radius;
-		quad[30 * point.index() + 1] = point.value().y - y_radius;
-		quad[30 * point.index() + 2] = 0;
-		quad[30 * point.index() + 3] = 1;
-		quad[30 * point.index() + 4] = -1;
+		quad[30 * index + 0] = point.x + x_radius;
+		quad[30 * index + 1] = point.y - y_radius;
+		quad[30 * index + 2] = 0;
+		quad[30 * index + 3] = 1;
+		quad[30 * index + 4] = -1;
 
-		quad[30 * point.index() + 5] = point.value().x + x_radius;
-		quad[30 * point.index() + 6] = point.value().y + y_radius;
-		quad[30 * point.index() + 7] = 0;
-		quad[30 * point.index() + 8] = 1;
-		quad[30 * point.index() + 9] = 1;
+		quad[30 * index + 5] = point.x + x_radius;
+		quad[30 * index + 6] = point.y + y_radius;
+		quad[30 * index + 7] = 0;
+		quad[30 * index + 8] = 1;
+		quad[30 * index + 9] = 1;
 
-		quad[30 * point.index() + 10] = point.value().x - x_radius;
-		quad[30 * point.index() + 11] = point.value().y + y_radius;
-		quad[30 * point.index() + 12] = 0;
-		quad[30 * point.index() + 13] = -1;
-		quad[30 * point.index() + 14] = 1;
+		quad[30 * index + 10] = point.x - x_radius;
+		quad[30 * index + 11] = point.y + y_radius;
+		quad[30 * index + 12] = 0;
+		quad[30 * index + 13] = -1;
+		quad[30 * index + 14] = 1;
 
-		quad[30 * point.index() + 15] = point.value().x - x_radius;
-		quad[30 * point.index() + 16] = point.value().y + y_radius;
-		quad[30 * point.index() + 17] = 0;
-		quad[30 * point.index() + 18] = -1;
-		quad[30 * point.index() + 19] = 1;
+		quad[30 * index + 15] = point.x - x_radius;
+		quad[30 * index + 16] = point.y + y_radius;
+		quad[30 * index + 17] = 0;
+		quad[30 * index + 18] = -1;
+		quad[30 * index + 19] = 1;
 
-		quad[30 * point.index() + 20] = point.value().x - x_radius;
-		quad[30 * point.index() + 21] = point.value().y - y_radius;
-		quad[30 * point.index() + 22] = 0;
-		quad[30 * point.index() + 23] = -1;
-		quad[30 * point.index() + 24] = -1;
+		quad[30 * index + 20] = point.x - x_radius;
+		quad[30 * index + 21] = point.y - y_radius;
+		quad[30 * index + 22] = 0;
+		quad[30 * index + 23] = -1;
+		quad[30 * index + 24] = -1;
 
-		quad[30 * point.index() + 25] = point.value().x + x_radius;
-		quad[30 * point.index() + 26] = point.value().y - y_radius;
-		quad[30 * point.index() + 27] = 0;
-		quad[30 * point.index() + 28] = 1;
-		quad[30 * point.index() + 29] = -1;
+		quad[30 * index + 25] = point.x + x_radius;
+		quad[30 * index + 26] = point.y - y_radius;
+		quad[30 * index + 27] = 0;
+		quad[30 * index + 28] = 1;
+		quad[30 * index + 29] = -1;
 	}
-	return quad;
+	// return {quad, minx, miny, maxx, maxy};
+	return {quad, minx, miny, maxx, maxy};
 }
 
 enum scatter_plot_programs {
@@ -117,11 +115,13 @@ int ScatterPlot::show()
 		return -1;
 
 	VertexBuffer vbo;
+	// Points
 	float *quad = new float[this->data.size() * 30 + 8 + 4];
-	auto pointquad = create_point_vertices(*this->guiManager, this->data);
+	auto [pointquad, minx, miny, maxx, maxy] = create_point_vertices(*this->guiManager, this->data);
 	for (int i = 0; i < this->data.size() * 30; i++)
 		quad[i] = pointquad[i];
 
+	// Axes
 	float axisquad[] = { -0.85f, -0.85f,
 		                 0.85f, -0.85f,
 		                 -0.85f, -0.85f,
@@ -129,19 +129,14 @@ int ScatterPlot::show()
 	for (int i = 0; i < 8; i++)
 		quad[this->data.size() * 30 + i] = axisquad[i];
 
+	// Regressor Line
 	auto x = std::vector<float>(this->data.size());
 	auto y = std::vector<float>(this->data.size());
-	for (auto point : this->data | boost::adaptors::indexed(0)) {
-		x[point.index()] = point.value().x;
-		y[point.index()] = point.value().y;
+	for (auto [index, point] : this->data | boost::adaptors::indexed(0)) {
+		x[index] = point.x;
+		y[index] = point.y;
 	}
-
 	auto [c0, c1] = stats::simple_ordinary_least_squares(x, y);
-	std::cout << "f(x) = " << c0 << " + " << c1 << "*x"
-			  << "\n";
-	std::cout << "f(10) = " << c0 + c1 * 10 << "\n";
-	std::cout << "f(15.7) = " << c0 + c1 * 15.7 << "\n";
-
 	quad[this->data.size() * 30 + 8] = this->data[0].x;
 	quad[this->data.size() * 30 + 8 + 1] = c0 + c1 * this->data[0].x;
 	quad[this->data.size() * 30 + 8 + 2] = this->data[this->data.size() - 1].x;
