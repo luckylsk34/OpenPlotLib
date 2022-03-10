@@ -25,26 +25,26 @@ GUIManager::GUIManager() { }
 
 std::map<std::string, int> compile_shaders(std::map<std::string, std::string> shaders)
 {
-	std::map<std::string, int> compiledShaders;
+	std::map<std::string, int> compiled_shaders;
 	for (auto shader : shaders) {
 		unsigned int type = (shader.first.find("vertex") != std::string::npos) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
-		compiledShaders[shader.first] = GUIManager::compile_shader(type, shader.second);
+		compiled_shaders[shader.first] = GUIManager::compile_shader(type, shader.second);
 	}
-	return compiledShaders;
+	return compiled_shaders;
 }
 
-void GUIManager::start_window(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised)
+void GUIManager::start_window(int screen_width, int screen_height, std::map<std::string, std::string> shaders, int &initialised)
 {
-	this->screenWidth = screenWidth;
-	this->screenHeight = screenHeight;
+	this->screen_width = screen_width;
+	this->screen_height = screen_height;
 
 	initialised = prepare_program_and_window(shaders);
-	this->compiledShaders = compile_shaders(shaders);
+	this->compiled_shaders = compile_shaders(shaders);
 }
 
 GUIManager::~GUIManager()
 {
-	for (auto compiledShader : this->compiledShaders)
+	for (auto compiledShader : this->compiled_shaders)
 		glDeleteShader(compiledShader.second);
 	for (auto program : this->programs) {
 		this->detach_all_shaders(program.first);
@@ -129,8 +129,8 @@ void GUIManager::detach_all_shaders(const unsigned int program_name)
 unsigned int GUIManager::rebind_shaders(const unsigned int program_name, std::string vertexShader, std::string fragmentShader)
 {
 	this->detach_all_shaders(program_name);
-	int compiledVertexShader = this->compiledShaders[vertexShader];
-	int compiledFragmentShader = this->compiledShaders[fragmentShader];
+	int compiledVertexShader = this->compiled_shaders[vertexShader];
+	int compiledFragmentShader = this->compiled_shaders[fragmentShader];
 	auto ret = GUIManager::bind_shaders(program_name, compiledVertexShader, compiledFragmentShader);
 	this->use_program(program_name);
 	return ret;
@@ -138,8 +138,8 @@ unsigned int GUIManager::rebind_shaders(const unsigned int program_name, std::st
 
 unsigned int GUIManager::bind_shaders(unsigned int program_name, const std::string vertex_shader, const std::string fragment_shader)
 {
-	int compiledVertexShader = this->compiledShaders[vertex_shader];
-	int compiledFragmentShader = this->compiledShaders[fragment_shader];
+	int compiledVertexShader = this->compiled_shaders[vertex_shader];
+	int compiledFragmentShader = this->compiled_shaders[fragment_shader];
 	return GUIManager::bind_shaders(program_name, compiledVertexShader, compiledFragmentShader);
 }
 
@@ -232,7 +232,7 @@ int GUIManager::prepare_program_and_window(std::map<std::string, std::string> sh
 	// glfwWindowHint(GLFW_SAMPLES, 4);
 	// glEnable(GL_MULTISAMPLE);
 
-	this->window = glfwCreateWindow(this->screenWidth, this->screenHeight, "Hello World", nullptr, nullptr);
+	this->window = glfwCreateWindow(this->screen_width, this->screen_height, "Hello World", nullptr, nullptr);
 	if (!this->window) {
 		glfwTerminate();
 		return -1;

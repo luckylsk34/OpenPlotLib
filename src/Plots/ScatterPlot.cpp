@@ -46,9 +46,9 @@ std::tuple<float*, float, float, float, float> create_point_vertices(GUIManager 
 	// Radius in pixels.
 	int radiusPixel = 10;
 	// Radius in pixels.
-	// float radius = (float) radiusPixel / app.screenWidth;
-	float x_radius = (float) radiusPixel / app.screenWidth;
-	float y_radius = (float) radiusPixel / app.screenHeight;
+	// float radius = (float) radiusPixel / app.screen_width;
+	float x_radius = (float) radiusPixel / app.screen_width;
+	float y_radius = (float) radiusPixel / app.screen_height;
 
 	for (auto [index, point] : points | boost::adaptors::indexed(0)) {
 		// transform the point

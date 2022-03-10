@@ -13,8 +13,8 @@ private:
 	GUIManager();
 
 public:
-	int screenWidth, screenHeight;
-	std::map<std::string, int> compiledShaders;
+	int screen_width, screen_height;
+	std::map<std::string, int> compiled_shaders;
 	GLFWwindow *window;
 	std::map<int, int> programs;
 	static GUIManager *instance;
@@ -22,7 +22,7 @@ public:
 	GUIManager(const GUIManager &guiManager) = delete;
 	GUIManager& operator=(const GUIManager &guiManager) = delete;
 	
-	void start_window(int screenWidth, int screenHeight, std::map<std::string, std::string> shaders, int &initialised);
+	void start_window(int screen_width, int screen_height, std::map<std::string, std::string> shaders, int &initialised);
 	~GUIManager();
 	static GUIManager* get_instance();
 	bool window_closed();
