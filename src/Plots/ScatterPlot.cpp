@@ -16,7 +16,7 @@ namespace stats = boost::math::statistics;
 #define PI 3.1415926f
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-std::tuple<float*, float, float, float, float> create_point_vertices(GUIManager &app, std::vector<Point> &points)
+std::tuple<float *, Point, Point> create_point_vertices(GUIManager &app, std::vector<Point> &points)
 {
 	// Use a Vertex Array Object
 	// GLuint vao;
@@ -50,15 +50,14 @@ std::tuple<float*, float, float, float, float> create_point_vertices(GUIManager 
 	float x_radius = (float) radiusPixel / app.screen_width;
 	float y_radius = (float) radiusPixel / app.screen_height;
 
+	Point resolution = Point(app.screen_width, app.screen_height);
 	for (auto [index, point] : points | boost::adaptors::indexed(0)) {
 		// transform the point
 		point -= Point(minx, miny);
-		point.scale(1/(maxx - minx), 1/(maxy - miny));
+		point.scale(1 / (maxx - minx), 1 / (maxy - miny));
 		point -= Point(0.5, 0.5);
 		point.scale(1.5);
-
-		point.x *= (float) (app.screenWidth - 2 * separation) / app.screenWidth;
-		point.y *= (float) (app.screenHeight - 2 * separation) / app.screenHeight;
+		point *= 1 - 2.f * separation / resolution;
 
 		// add the 6 vertices for the triangles.
 		quad[30 * index + 0] = point.x + x_radius;
@@ -97,8 +96,12 @@ std::tuple<float*, float, float, float, float> create_point_vertices(GUIManager 
 		quad[30 * index + 28] = 1;
 		quad[30 * index + 29] = -1;
 	}
-	// return {quad, minx, miny, maxx, maxy};
-	return {quad, minx, miny, maxx, maxy};
+
+	Point bottom_left(-0.75, -0.75), top_right(0.75, 0.75);
+	bottom_left *= 1 - 2.f * separation / resolution;
+	top_right *= 1 - 2.f * separation / resolution;
+
+	return { quad, bottom_left, top_right };
 }
 
 enum scatter_plot_programs {
@@ -116,19 +119,20 @@ int ScatterPlot::show()
 
 	VertexBuffer vbo;
 	// Points
-	float *quad = new float[this->data.size() * 30 + 8 + 4];
-	auto [pointquad, minx, miny, maxx, maxy] = create_point_vertices(*this->guiManager, this->data);
+	float *quad = new float[this->data.size() * 30 + 8 + 4 + 100];
+	int offset = 0;
+	auto [pointquad, bottom_left, top_right] = create_point_vertices(*this->guiManager, this->data);
 	for (int i = 0; i < this->data.size() * 30; i++)
 		quad[i] = pointquad[i];
-
+	offset = this->data.size() * 30;
 	// Axes
 	float axisquad[] = { -0.85f, -0.85f,
 		                 0.85f, -0.85f,
 		                 -0.85f, -0.85f,
 		                 -0.85f, 0.85f };
 	for (int i = 0; i < 8; i++)
-		quad[this->data.size() * 30 + i] = axisquad[i];
-
+		quad[offset + i] = axisquad[i];
+	offset = offset + 8;
 	// Regressor Line
 	auto x = std::vector<float>(this->data.size());
 	auto y = std::vector<float>(this->data.size());
@@ -137,12 +141,36 @@ int ScatterPlot::show()
 		y[index] = point.y;
 	}
 	auto [c0, c1] = stats::simple_ordinary_least_squares(x, y);
-	quad[this->data.size() * 30 + 8] = this->data[0].x;
-	quad[this->data.size() * 30 + 8 + 1] = c0 + c1 * this->data[0].x;
-	quad[this->data.size() * 30 + 8 + 2] = this->data[this->data.size() - 1].x;
-	quad[this->data.size() * 30 + 8 + 3] = c0 + c1 * this->data[this->data.size() - 1].x;
+	quad[offset] = this->data[0].x;
+	quad[offset + 1] = c0 + c1 * this->data[0].x;
+	quad[offset + 2] = this->data[this->data.size() - 1].x;
+	quad[offset + 3] = c0 + c1 * this->data[this->data.size() - 1].x;
+	offset = offset + 4;
 
-	vbo.send_data(quad, (int) (this->data.size() * 30 + 8 + 4) * 4);
+	int min_ruler_width = 40;
+	auto resolution = Point(this->guiManager->screen_width, this->guiManager->screen_height);
+
+	auto num_spokes = (top_right - bottom_left) / 2 * resolution / min_ruler_width;
+	num_spokes = num_spokes.to_type<int>();
+	auto spoke_sep = (top_right - bottom_left) / (num_spokes - 1);
+	auto start = bottom_left;
+
+	for (int i = 0; i < num_spokes.x; i++) {
+		quad[offset + 4 * i] = start.x + i * spoke_sep.x;
+		quad[offset + 4 * i + 1] = -0.85f;
+		quad[offset + 4 * i + 2] = start.x + i * spoke_sep.x;
+		quad[offset + 4 * i + 3] = -0.9f;
+	}
+	offset = offset + 4 * (num_spokes.x);
+	for (int i = 0; i < num_spokes.y; i++) {
+		quad[offset + 4 * i] = -0.85f;
+		quad[offset + 4 * i + 1] = start.y + i * spoke_sep.y;
+		quad[offset + 4 * i + 2] = -0.9f;
+		quad[offset + 4 * i + 3] = start.y + i * spoke_sep.y;
+	}
+	offset = offset + 4 * (num_spokes.y);
+
+	vbo.send_data(quad, (int) (offset) *4);
 
 	this->guiManager->create_program(points_program);
 	this->guiManager->bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
@@ -197,6 +225,8 @@ void ScatterPlot::draw_axes()
 	// glLineWidth(2);
 	glDrawArrays(GL_LINES, 4, 2);
 	// glDisable(GL_LINE_SMOOTH);
+	glDrawArrays(GL_LINES, 6, 32);
+	glDrawArrays(GL_LINES, 6, 24);
 }
 
 void ScatterPlot::draw_legend()

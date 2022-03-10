@@ -29,14 +29,34 @@ public:
 	float dot(Point const &right) { return x * right.x + y * right.y; }
 	Point operator+(const Point &right) { return Point(x + right.x, y + right.y); }
 	Point operator-(const Point &right) { return Point(x - right.x, y - right.y); }
-	Point operator*(const float scale) { return Point(x * scale, y * scale); }
-	Point operator/(const float scale) { return Point(x / scale, y / scale); }
-	void operator+=(const Point &right) { x += right.x, y += right.y; }
-	void operator-=(const Point &right) { x -= right.x, y -= right.y; }
-	void operator*=(const float scale) { x *= scale, y *= scale; }
-	void operator/=(const float scale) { x /= scale, y /= scale; }
-	void scale(float scale) { x *= scale, y *= scale; }
-	void scale(float scale_x, float scale_y) { x *= scale_x, y *= scale_y; }
+	friend Point operator+(const Point &left, const float &right) { return Point(left.x + right, left.y + right); }
+	friend Point operator+(const float &left, const Point &right) { return Point(left + right.x, left + right.y); }
+	friend Point operator-(const Point &left, const float &right) { return Point(left.x - right, left.y - right); }
+	friend Point operator-(const float &left, const Point &right) { return Point(left - right.x, left - right.y); }
+	Point operator*(const Point &scale) { return Point(x * scale.x, y * scale.y); }
+	Point operator/(const Point &scale) { return Point(x / scale.x, y / scale.y); }
+	friend Point operator*(const Point &left, const float &right) { return Point(left.x * right, left.y * right); }
+	friend Point operator*(const float &left, const Point &right) { return Point(left * right.x, left * right.y); }
+	friend Point operator/(const Point &left, const float &right) { return Point(left.x / right, left.y / right); }
+	friend Point operator/(const float &left, const Point &right) { return Point(left / right.x, left / right.y); }
+	Point operator+=(const Point &right) { x += right.x, y += right.y; return *this; }
+	Point operator-=(const Point &right) { x -= right.x, y -= right.y; return *this; }
+	Point operator+=(const float &right) { x += right, y += right; return *this; }
+	Point operator-=(const float &right) { x -= right, y -= right; return *this; }
+	Point operator*=(const Point &right) { x *= right.x, y *= right.y; return *this; }
+	Point operator/=(const Point &right) { x /= right.x, y /= right.y; return *this; }
+	Point operator*=(const float &scale) { x *= scale, y *= scale; return *this; }
+	Point operator/=(const float &scale) { x /= scale, y /= scale; return *this; }
+	Point scale(float scale) { x *= scale, y *= scale; return *this; }
+	Point scale(float scale_x, float scale_y) { x *= scale_x, y *= scale_y; return *this; }
+	
+	friend std::ostream &operator<<(std::ostream &os, Point const &point) { 
+    	return os << "Point(" << point.x << ", " << point.y << ")";
+	}
+
+	template <typename T>
+	Point to_type() {return Point(T(x), T(y));};
+	// operator int() const { return Point(int(x), int(y)); }
 };
 
 template <typename T>
