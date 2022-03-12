@@ -119,20 +119,15 @@ int ScatterPlot::show()
 
 	VertexBuffer vbo;
 	// Points
-	float *quad = new float[this->data.size() * 30 + 8 + 4 + 100];
-	int offset = 0;
+	std::vector<float> q1;
 	auto [pointquad, bottom_left, top_right] = create_point_vertices(*this->guiManager, this->data);
-	for (int i = 0; i < this->data.size() * 30; i++)
-		quad[i] = pointquad[i];
-	offset = this->data.size() * 30;
+	q1.insert(q1.end(), pointquad, pointquad + this->data.size() * 30);
 	// Axes
 	float axisquad[] = { -0.85f, -0.85f,
 		                 0.85f, -0.85f,
 		                 -0.85f, -0.85f,
 		                 -0.85f, 0.85f };
-	for (int i = 0; i < 8; i++)
-		quad[offset + i] = axisquad[i];
-	offset = offset + 8;
+	q1.insert(q1.end(), axisquad, axisquad + 8);
 	// Regressor Line
 	auto x = std::vector<float>(this->data.size());
 	auto y = std::vector<float>(this->data.size());
@@ -141,11 +136,10 @@ int ScatterPlot::show()
 		y[index] = point.y;
 	}
 	auto [c0, c1] = stats::simple_ordinary_least_squares(x, y);
-	quad[offset] = this->data[0].x;
-	quad[offset + 1] = c0 + c1 * this->data[0].x;
-	quad[offset + 2] = this->data[this->data.size() - 1].x;
-	quad[offset + 3] = c0 + c1 * this->data[this->data.size() - 1].x;
-	offset = offset + 4;
+	q1.push_back(this->data[0].x);
+	q1.push_back(c0 + c1 * this->data[0].x);
+	q1.push_back(this->data[this->data.size() - 1].x);
+	q1.push_back(c0 + c1 * this->data[this->data.size() - 1].x);
 
 	int min_ruler_width = 40;
 	auto resolution = Point(this->guiManager->screen_width, this->guiManager->screen_height);
@@ -156,21 +150,19 @@ int ScatterPlot::show()
 	auto start = bottom_left;
 
 	for (int i = 0; i < num_spokes.x; i++) {
-		quad[offset + 4 * i] = start.x + i * spoke_sep.x;
-		quad[offset + 4 * i + 1] = -0.85f;
-		quad[offset + 4 * i + 2] = start.x + i * spoke_sep.x;
-		quad[offset + 4 * i + 3] = -0.9f;
+		q1.push_back(start.x + i * spoke_sep.x);
+		q1.push_back(-0.85f);
+		q1.push_back(start.x + i * spoke_sep.x);
+		q1.push_back(-0.9f);
 	}
-	offset = offset + 4 * (num_spokes.x);
 	for (int i = 0; i < num_spokes.y; i++) {
-		quad[offset + 4 * i] = -0.85f;
-		quad[offset + 4 * i + 1] = start.y + i * spoke_sep.y;
-		quad[offset + 4 * i + 2] = -0.9f;
-		quad[offset + 4 * i + 3] = start.y + i * spoke_sep.y;
+		q1.push_back(-0.85f);
+		q1.push_back(start.y + i * spoke_sep.y);
+		q1.push_back(-0.9f);
+		q1.push_back(start.y + i * spoke_sep.y);
 	}
-	offset = offset + 4 * (num_spokes.y);
 
-	vbo.send_data(quad, (int) (offset) *4);
+	vbo.send_data(q1.data(), q1.size() * 4);
 
 	this->guiManager->create_program(points_program);
 	this->guiManager->bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
