@@ -104,6 +104,45 @@ enum scatter_plot_programs {
 	axis_program
 };
 
+template <typename T>
+void add_regressor_points(std::vector<Point> &points, std::vector<T> &vec)
+{
+	auto x = std::vector<float>(points.size());
+	auto y = std::vector<float>(points.size());
+	for (auto [index, point] : points | boost::adaptors::indexed(0)) {
+		x[index] = point.x;
+		y[index] = point.y;
+	}
+	auto [c0, c1] = stats::simple_ordinary_least_squares(x, y);
+	vec.push_back(points.front().x);
+	vec.push_back(c0 + c1 * points.front().x);
+	vec.push_back(points.back().x);
+	vec.push_back(c0 + c1 * points.back().x);
+}
+
+template <typename T>
+void add_spokes(Point &bottom_left, Point &top_right, Point &resolution, std::vector<T> &vec)
+{
+	int min_ruler_width = 40;
+	auto num_spokes = (top_right - bottom_left) / 2 * resolution / min_ruler_width;
+	num_spokes = num_spokes.to_type<int>();
+	auto spoke_sep = (top_right - bottom_left) / (num_spokes - 1);
+	auto start = bottom_left;
+
+	for (int i = 0; i < num_spokes.x; i++) {
+		vec.push_back(start.x + i * spoke_sep.x);
+		vec.push_back(-0.85f);
+		vec.push_back(start.x + i * spoke_sep.x);
+		vec.push_back(-0.9f);
+	}
+	for (int i = 0; i < num_spokes.y; i++) {
+		vec.push_back(-0.85f);
+		vec.push_back(start.y + i * spoke_sep.y);
+		vec.push_back(-0.9f);
+		vec.push_back(start.y + i * spoke_sep.y);
+	}
+}
+
 int ScatterPlot::show()
 {
 	int initialised;
@@ -124,38 +163,10 @@ int ScatterPlot::show()
 		                 -0.85f, 0.85f };
 	q1.insert(q1.end(), axisquad, axisquad + 8);
 	// Regressor Line
-	auto x = std::vector<float>(this->data.size());
-	auto y = std::vector<float>(this->data.size());
-	for (auto [index, point] : this->data | boost::adaptors::indexed(0)) {
-		x[index] = point.x;
-		y[index] = point.y;
-	}
-	auto [c0, c1] = stats::simple_ordinary_least_squares(x, y);
-	q1.push_back(this->data[0].x);
-	q1.push_back(c0 + c1 * this->data[0].x);
-	q1.push_back(this->data[this->data.size() - 1].x);
-	q1.push_back(c0 + c1 * this->data[this->data.size() - 1].x);
+	add_regressor_points(this->data, q1);
 
-	int min_ruler_width = 40;
 	auto resolution = Point(this->guiManager->screen_width, this->guiManager->screen_height);
-
-	auto num_spokes = (top_right - bottom_left) / 2 * resolution / min_ruler_width;
-	num_spokes = num_spokes.to_type<int>();
-	auto spoke_sep = (top_right - bottom_left) / (num_spokes - 1);
-	auto start = bottom_left;
-
-	for (int i = 0; i < num_spokes.x; i++) {
-		q1.push_back(start.x + i * spoke_sep.x);
-		q1.push_back(-0.85f);
-		q1.push_back(start.x + i * spoke_sep.x);
-		q1.push_back(-0.9f);
-	}
-	for (int i = 0; i < num_spokes.y; i++) {
-		q1.push_back(-0.85f);
-		q1.push_back(start.y + i * spoke_sep.y);
-		q1.push_back(-0.9f);
-		q1.push_back(start.y + i * spoke_sep.y);
-	}
+	add_spokes(bottom_left, top_right, resolution, q1);
 
 	vbo.send_data(q1.data(), q1.size() * 4);
 
