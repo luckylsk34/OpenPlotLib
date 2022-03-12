@@ -28,7 +28,7 @@ std::tuple<float *, Point, Point> create_point_vertices(GUIManager &app, std::ve
 	float left = -0.5;
 	// +4 is for the vertices of axis.
 	float top = 0.5;
-	float *quad = new float[points.size() * 30];
+	float *quad = new float[points.size() * 24];
 
 	float minx = FLT_MAX, maxx = FLT_MIN, miny = FLT_MAX, maxy = FLT_MIN;
 	for (auto point : points) {
@@ -60,41 +60,36 @@ std::tuple<float *, Point, Point> create_point_vertices(GUIManager &app, std::ve
 		point *= 1 - 2.f * separation / resolution;
 
 		// add the 6 vertices for the triangles.
-		quad[30 * index + 0] = point.x + x_radius;
-		quad[30 * index + 1] = point.y - y_radius;
-		quad[30 * index + 2] = 0;
-		quad[30 * index + 3] = 1;
-		quad[30 * index + 4] = -1;
+		int offset = 0;
+		quad[24 * index + offset++] = point.x + x_radius;
+		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = 1;
+		quad[24 * index + offset++] = -1;
 
-		quad[30 * index + 5] = point.x + x_radius;
-		quad[30 * index + 6] = point.y + y_radius;
-		quad[30 * index + 7] = 0;
-		quad[30 * index + 8] = 1;
-		quad[30 * index + 9] = 1;
+		quad[24 * index + offset++] = point.x + x_radius;
+		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = 1;
+		quad[24 * index + offset++] = 1;
 
-		quad[30 * index + 10] = point.x - x_radius;
-		quad[30 * index + 11] = point.y + y_radius;
-		quad[30 * index + 12] = 0;
-		quad[30 * index + 13] = -1;
-		quad[30 * index + 14] = 1;
+		quad[24 * index + offset++] = point.x - x_radius;
+		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = -1;
+		quad[24 * index + offset++] = 1;
 
-		quad[30 * index + 15] = point.x - x_radius;
-		quad[30 * index + 16] = point.y + y_radius;
-		quad[30 * index + 17] = 0;
-		quad[30 * index + 18] = -1;
-		quad[30 * index + 19] = 1;
+		quad[24 * index + offset++] = point.x - x_radius;
+		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = -1;
+		quad[24 * index + offset++] = 1;
 
-		quad[30 * index + 20] = point.x - x_radius;
-		quad[30 * index + 21] = point.y - y_radius;
-		quad[30 * index + 22] = 0;
-		quad[30 * index + 23] = -1;
-		quad[30 * index + 24] = -1;
+		quad[24 * index + offset++] = point.x - x_radius;
+		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = -1;
+		quad[24 * index + offset++] = -1;
 
-		quad[30 * index + 25] = point.x + x_radius;
-		quad[30 * index + 26] = point.y - y_radius;
-		quad[30 * index + 27] = 0;
-		quad[30 * index + 28] = 1;
-		quad[30 * index + 29] = -1;
+		quad[24 * index + offset++] = point.x + x_radius;
+		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = 1;
+		quad[24 * index + offset++] = -1;
 	}
 
 	Point bottom_left(-0.75, -0.75), top_right(0.75, 0.75);
@@ -121,7 +116,7 @@ int ScatterPlot::show()
 	// Points
 	std::vector<float> q1;
 	auto [pointquad, bottom_left, top_right] = create_point_vertices(*this->guiManager, this->data);
-	q1.insert(q1.end(), pointquad, pointquad + this->data.size() * 30);
+	q1.insert(q1.end(), pointquad, pointquad + this->data.size() * 24);
 	// Axes
 	float axisquad[] = { -0.85f, -0.85f,
 		                 0.85f, -0.85f,
@@ -198,9 +193,9 @@ void ScatterPlot::draw_points()
 	int ATTRIB_VALUE = glGetAttribLocation(program, "value");
 
 	glEnableVertexAttribArray(ATTRIB_VERTEX);
-	glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, GL_FALSE, 20, 0);
+	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 16, 0);
 	glEnableVertexAttribArray(ATTRIB_VALUE);
-	glVertexAttribPointer(ATTRIB_VALUE, 2, GL_FLOAT, GL_FALSE, 20, BUFFER_OFFSET(12));
+	glVertexAttribPointer(ATTRIB_VALUE, 2, GL_FLOAT, GL_FALSE, 16, BUFFER_OFFSET(8));
 	glDrawArrays(GL_TRIANGLES, 0, (int) this->data.size() * 6);
 }
 
@@ -211,7 +206,7 @@ void ScatterPlot::draw_axes()
 	int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
 
 	glEnableVertexAttribArray(ATTRIB_VERTEX);
-	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 8, BUFFER_OFFSET(this->data.size() * 30 * 4));
+	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 8, BUFFER_OFFSET(this->data.size() * 24 * 4));
 	// glEnable(GL_LINE_SMOOTH);
 	glDrawArrays(GL_LINES, 0, 4);
 	// glLineWidth(2);
