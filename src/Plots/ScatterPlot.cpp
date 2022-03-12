@@ -16,19 +16,12 @@ namespace stats = boost::math::statistics;
 #define PI 3.1415926f
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-std::tuple<float *, Point, Point> create_point_vertices(GUIManager &app, std::vector<Point> &points)
+void add_point_vertices(GUIManager &app, std::vector<Point> &points, std::vector<float> &q1)
 {
 	// Use a Vertex Array Object
 	// GLuint vao;
 	// glGenVertexArrays(1, &vao);
 	// glBindVertexArray(vao);
-
-	float right = 0.5;
-	float bottom = -0.5;
-	float left = -0.5;
-	// +4 is for the vertices of axis.
-	float top = 0.5;
-	float *quad = new float[points.size() * 24];
 
 	float minx = FLT_MAX, maxx = FLT_MIN, miny = FLT_MAX, maxy = FLT_MIN;
 	for (auto point : points) {
@@ -50,6 +43,7 @@ std::tuple<float *, Point, Point> create_point_vertices(GUIManager &app, std::ve
 	float x_radius = (float) radiusPixel / app.screen_width;
 	float y_radius = (float) radiusPixel / app.screen_height;
 
+	float *quad = new float[points.size() * 24];
 	Point resolution = Point(app.screen_width, app.screen_height);
 	for (auto [index, point] : points | boost::adaptors::indexed(0)) {
 		// transform the point
@@ -91,12 +85,7 @@ std::tuple<float *, Point, Point> create_point_vertices(GUIManager &app, std::ve
 		quad[24 * index + offset++] = 1;
 		quad[24 * index + offset++] = -1;
 	}
-
-	Point bottom_left(-0.75, -0.75), top_right(0.75, 0.75);
-	bottom_left *= 1 - 2.f * separation / resolution;
-	top_right *= 1 - 2.f * separation / resolution;
-
-	return { quad, bottom_left, top_right };
+	q1.insert(q1.end(), quad, quad + points.size() * 24);
 }
 
 enum scatter_plot_programs {
@@ -121,25 +110,30 @@ void add_regressor_points(std::vector<Point> &points, std::vector<T> &vec)
 }
 
 template <typename T>
-void add_spokes(Point &bottom_left, Point &top_right, Point &resolution, std::vector<T> &vec)
+void add_ticks(Point &resolution, std::vector<T> &vec)
 {
+	Point bottom_left(-0.75, -0.75), top_right(0.75, 0.75);
+	int separation = 30;
+	bottom_left *= 1 - 2.f * separation / resolution;
+	top_right *= 1 - 2.f * separation / resolution;
+
 	int min_ruler_width = 40;
-	auto num_spokes = (top_right - bottom_left) / 2 * resolution / min_ruler_width;
-	num_spokes = num_spokes.to_type<int>();
-	auto spoke_sep = (top_right - bottom_left) / (num_spokes - 1);
+	auto num_ticks = (top_right - bottom_left) / 2 * resolution / min_ruler_width;
+	num_ticks = num_ticks.to_type<int>();
+	auto tick_sep = (top_right - bottom_left) / (num_ticks - 1);
 	auto start = bottom_left;
 
-	for (int i = 0; i < num_spokes.x; i++) {
-		vec.push_back(start.x + i * spoke_sep.x);
+	for (int i = 0; i < num_ticks.x; i++) {
+		vec.push_back(start.x + i * tick_sep.x);
 		vec.push_back(-0.85f);
-		vec.push_back(start.x + i * spoke_sep.x);
+		vec.push_back(start.x + i * tick_sep.x);
 		vec.push_back(-0.9f);
 	}
-	for (int i = 0; i < num_spokes.y; i++) {
+	for (int i = 0; i < num_ticks.y; i++) {
 		vec.push_back(-0.85f);
-		vec.push_back(start.y + i * spoke_sep.y);
+		vec.push_back(start.y + i * tick_sep.y);
 		vec.push_back(-0.9f);
-		vec.push_back(start.y + i * spoke_sep.y);
+		vec.push_back(start.y + i * tick_sep.y);
 	}
 }
 
@@ -154,8 +148,8 @@ int ScatterPlot::show()
 	VertexBuffer vbo;
 	// Points
 	std::vector<float> q1;
-	auto [pointquad, bottom_left, top_right] = create_point_vertices(*this->guiManager, this->data);
-	q1.insert(q1.end(), pointquad, pointquad + this->data.size() * 24);
+	add_point_vertices(*this->guiManager, this->data, q1);
+	
 	// Axes
 	float axisquad[] = { -0.85f, -0.85f,
 		                 0.85f, -0.85f,
@@ -166,7 +160,7 @@ int ScatterPlot::show()
 	add_regressor_points(this->data, q1);
 
 	auto resolution = Point(this->guiManager->screen_width, this->guiManager->screen_height);
-	add_spokes(bottom_left, top_right, resolution, q1);
+	add_ticks(resolution, q1);
 
 	vbo.send_data(q1.data(), q1.size() * 4);
 
