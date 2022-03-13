@@ -11,12 +11,10 @@
 
 namespace stats = boost::math::statistics;
 
-#define DEFAULT_SCREEN_WIDTH 500
-#define DEFAULT_SCREEN_HEIGHT 400
 #define PI 3.1415926f
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-void add_point_vertices(GUIManager &app, std::vector<Point> &points, std::vector<float> &q1)
+void add_point_vertices(ScatterPlotOptions &options, std::vector<Point> &points, std::vector<float> &q1)
 {
 	// Use a Vertex Array Object
 	// GLuint vao;
@@ -34,24 +32,18 @@ void add_point_vertices(GUIManager &app, std::vector<Point> &points, std::vector
 		if (maxy < point.y)
 			maxy = point.y;
 	}
-	// Seperation of axis from the boundary of the window in pixels.
-	int separation = 30;
-	// Radius in pixels.
-	int radiusPixel = 10;
-	// Radius in pixels.
-	// float radius = (float) radiusPixel / app.screen_width;
-	float x_radius = (float) radiusPixel / app.screen_width;
-	float y_radius = (float) radiusPixel / app.screen_height;
 
+	float x_radius = (float) options.point_radius() / options.screen_width();
+	float y_radius = (float) options.point_radius() / options.screen_height();
 	float *quad = new float[points.size() * 24];
-	Point resolution = Point(app.screen_width, app.screen_height);
+	Point resolution = Point(options.screen_width(), options.screen_height());
 	for (auto [index, point] : points | boost::adaptors::indexed(0)) {
 		// transform the point
 		point -= Point(minx, miny);
 		point.scale(1 / (maxx - minx), 1 / (maxy - miny));
 		point -= Point(0.5, 0.5);
 		point.scale(1.5);
-		point *= 1 - 2.f * separation / resolution;
+		point *= 1 - 2.f * options.axes_seperation() / resolution;
 
 		// add the 6 vertices for the triangles.
 		int offset = 0;
@@ -110,12 +102,15 @@ void add_regressor_points(std::vector<Point> &points, std::vector<T> &vec)
 }
 
 template <typename T>
-void add_ticks(Point &resolution, std::vector<T> &vec)
+void add_ticks(ScatterPlotOptions &options, std::vector<T> &vec)
 {
+	if (!options.tick_enabled())
+		return;
+
 	Point bottom_left(-0.75, -0.75), top_right(0.75, 0.75);
-	int separation = 30;
-	bottom_left *= 1 - 2.f * separation / resolution;
-	top_right *= 1 - 2.f * separation / resolution;
+	Point resolution = Point(options.screen_width(), options.screen_height());
+	bottom_left *= 1 - 2.f * options.axes_seperation() / resolution;
+	top_right *= 1 - 2.f * options.axes_seperation() / resolution;
 
 	int min_ruler_width = 40;
 	auto num_ticks = (top_right - bottom_left) / 2 * resolution / min_ruler_width;
@@ -127,12 +122,12 @@ void add_ticks(Point &resolution, std::vector<T> &vec)
 		vec.push_back(start.x + i * tick_sep.x);
 		vec.push_back(-0.85f);
 		vec.push_back(start.x + i * tick_sep.x);
-		vec.push_back(-0.9f);
+		vec.push_back(-0.85f - options.tick_length() / options.screen_height());
 	}
 	for (int i = 0; i < num_ticks.y; i++) {
 		vec.push_back(-0.85f);
 		vec.push_back(start.y + i * tick_sep.y);
-		vec.push_back(-0.9f);
+		vec.push_back(-0.85f - options.tick_length() / options.screen_width());
 		vec.push_back(start.y + i * tick_sep.y);
 	}
 }
@@ -141,15 +136,15 @@ int ScatterPlot::show()
 {
 	int initialised;
 	this->guiManager = GUIManager::get_instance();
-	this->guiManager->start_window(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT, shaders, initialised);
+	this->guiManager->start_window(this->options.screen_width(), this->options.screen_height(), shaders, initialised);
 	if (initialised < 0)
 		return -1;
 
 	VertexBuffer vbo;
 	// Points
 	std::vector<float> q1;
-	add_point_vertices(*this->guiManager, this->data, q1);
-	
+	add_point_vertices(this->options, this->data, q1);
+
 	// Axes
 	float axisquad[] = { -0.85f, -0.85f,
 		                 0.85f, -0.85f,
@@ -160,7 +155,7 @@ int ScatterPlot::show()
 	add_regressor_points(this->data, q1);
 
 	auto resolution = Point(this->guiManager->screen_width, this->guiManager->screen_height);
-	add_ticks(resolution, q1);
+	add_ticks(this->options, q1);
 
 	vbo.send_data(q1.data(), q1.size() * 4);
 

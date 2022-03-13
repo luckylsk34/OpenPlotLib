@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "../GUIManager.h"
+#include "options.h"
 
 namespace po = boost::program_options;
 
@@ -118,15 +119,17 @@ class ScatterPlot : public _2DPlot
 public:
 	po::variables_map vm;
 	std::vector<Point> data;
+	ScatterPlotOptions options;
 
 	ScatterPlot() {};
 
-	ScatterPlot(po::variables_map vm)
-		: ScatterPlot(std::vector<Point>(), vm) {};
+	ScatterPlot(po::variables_map vm,  ScatterPlotOptions options)
+		: ScatterPlot(std::vector<Point>(), vm, options) {};
 
-	ScatterPlot(std::vector<Point> data, po::variables_map vm)
+	ScatterPlot(std::vector<Point> data, po::variables_map vm, ScatterPlotOptions options)
 		: data(data)
 		, vm(vm)
+		,options(options)
 	{
 		this->x_range.set(0, 100, 10);
 		this->y_range.set(0, 100, 10);

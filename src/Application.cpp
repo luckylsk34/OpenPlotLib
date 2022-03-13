@@ -1,5 +1,8 @@
 #include "Plots/Plot.h"
 
+#define DEFAULT_SCREEN_WIDTH 500
+#define DEFAULT_SCREEN_HEIGHT 400
+
 int main(int argc, char *argv[])
 {
 	po::options_description desc("Allowed options");
@@ -33,7 +36,14 @@ int main(int argc, char *argv[])
 
 	// Plot *plot = new _2DPlot();
 
-	auto plot1 = std::make_unique<ScatterPlot>(points, vm);
+	ScatterPlotOptions options;
+	options.set_resolution(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
+	options.enable_ticks(false);
+	options.set_tick_length(18);
+	options.set_axes_seperation(30);
+	options.set_point_radius(10);
+	
+	auto plot1 = std::make_unique<ScatterPlot>(points, vm, options);
 	plot1->show();
 
 
