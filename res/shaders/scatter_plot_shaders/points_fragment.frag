@@ -17,7 +17,9 @@ void main() {
     if (dist >= R) {
 		discard;
 	}
-    float sm = smoothstep(R, R - 0.6, dist);
+    float sm = smoothstep(R, R - 0.3, dist);
     float alpha = sm;
+    
+    // out_color = vec4(76.0 / 255, 114.0 / 255, 176.0 / 255, alpha);
     out_color = vec4(gl_FragCoord.xy/400, 0.0, alpha);
 }
