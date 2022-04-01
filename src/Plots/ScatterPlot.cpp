@@ -162,13 +162,9 @@ int ScatterPlot::show()
 
 	VertexBuffer vbo(q1.data(), q1.size() * 4);
 
-	std::cout << "Creating points_program" << std::endl;
 	this->guiManager->create_program(points_program);
-	std::cout << "Binging Shaders" << std::endl;
 	this->guiManager->bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
-	std::cout << "Cmreating axis_progra" << std::endl;
 	this->guiManager->create_program(axis_program);
-	std::cout << "Binging Shaders" << std::endl;
 	this->guiManager->bind_shaders(axis_program, "empty_vertex", "empty_fragment");
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -187,10 +183,10 @@ void ScatterPlot::draw()
 	glClearColor(1, 1, 1, 1);
 	// double posx, posy;
 	// glfwGetCursorPos(window, &posx, &posy);
-	// std::cout << "Drawing Points" << std::endl;
-	// this->draw_points();
-	// std::cout << "Drawing Axes" << std::endl;
-	// this->draw_axes();
+	std::cout << "Drawing Points" << std::endl;
+	this->draw_points();
+	std::cout << "Drawing Axes" << std::endl;
+	this->draw_axes();
 	// Draw Legend
 }
 

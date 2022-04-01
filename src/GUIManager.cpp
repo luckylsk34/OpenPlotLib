@@ -44,19 +44,16 @@ GUIManager::~GUIManager()
 {
 	for (auto shader : this->shaders)
 		shader.second.destroy();
-	// for (auto program : this->programs) {
-		// this->detach_all_shaders(program.first);
-		// glDeleteProgram(program.second);
-	// }
+	for (auto program : this->programs) {
+		program.second.destroy();
+	}
 	glfwTerminate();
 }
 
 void GUIManager::create_program(const unsigned int program_name)
 {
-	std::cout << "Creating program " << program_name << std::endl;
-	// this->programs[program_name] = Program();
-	this->programs.insert(std::make_pair(program_name, Program()));
-	std::cout << program_name << " Program created" << std::endl;
+	this->programs[program_name] = Program();
+	// this->programs.insert(std::make_pair(program_name, Program()));
 }
 
 void GUIManager::use_program(const unsigned int program_name)
@@ -96,7 +93,6 @@ unsigned int GUIManager::bind_shaders(unsigned int program_name, const std::stri
 	Shader vs = this->shaders[vertex_shader];
 	Shader fs = this->shaders[fragment_shader];
 	auto program = this->programs[program_name];
-	std::cout << "GUIManager::bind_shaders -> " << program_name << std::endl;
 	return program.bind_shaders(vs, fs);
 }
 

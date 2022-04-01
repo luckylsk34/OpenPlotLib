@@ -30,12 +30,8 @@ bool check_for_error(unsigned int program, int whatToCheck)
 
 unsigned int Program::bind_shaders(const Shader vertexshader, const Shader fragmentshader)
 {
-	std::cout << _id << std::endl;
-	std::cout << vertexshader.id() << std::endl;
 	glAttachShader(_id, vertexshader.id());
-	std::cout << fragmentshader.id() << std::endl;
 	glAttachShader(_id, fragmentshader.id());
-	std::cout << "Linking Program" << std::endl;
 	glLinkProgram(_id);
 	if (check_for_error(_id, GL_LINK_STATUS)) return 0;
 	glValidateProgram(_id);

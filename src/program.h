@@ -13,12 +13,11 @@ private:
 
 public:
 	Program() { _id = glCreateProgram(); }
-	Program(const Program &program) { std::cout << "Copy Constructor" << std::endl;_id = program._id; }
-	Program(Program &&program) { std::cout << "Move Constructor" << std::endl;_id = program._id; program._id = -1;}
+	// Program(const Program &program) { std::cout << "Copy Constructor" << std::endl;_id = program._id; }
+	// Program(Program &&program) { std::cout << "Move Constructor" << std::endl;_id = program._id; program._id = -1;}
 
-	~Program()
+	void destroy()
 	{
-		std::cout << "Called destructor on Program(" << _id << ")" << std::endl;
 		detach_all_shaders();
 		glDeleteProgram(_id);
 	};
