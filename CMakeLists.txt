@@ -42,6 +42,8 @@ target_sources(OpenPlotLibTest
         src/Plots/ScatterPlot.cpp
         src/shader.h
         src/shader.cpp
+        src/program.h
+        src/program.cpp
         src/shaders.h
 )
 target_compile_definitions(OpenPlotLibTest PRIVATE GLEW_STATIC)
