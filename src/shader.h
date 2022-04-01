@@ -12,7 +12,7 @@ private:
 	unsigned int _id;
 
 public:
-	Shader() {}
+	Shader() {};
 	Shader(unsigned int type)
 		: _type(type) {};
 
@@ -22,7 +22,7 @@ public:
 		_id = Shader::compile_shader(type, source);
 	};
 
-	~Shader() { glDeleteShader(_id); }
+	void destroy() { glDeleteShader(_id); }
 
 	unsigned int id() const { return _id; }
 
