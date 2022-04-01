@@ -33,17 +33,17 @@ find_package(Python 3.7 COMPONENTS Development REQUIRED)
 add_executable(OpenPlotLibTest src/Application.cpp )
 target_sources(OpenPlotLibTest
     PRIVATE
-        src/GUIManager.cpp
-        src/GUIManager.h
-        src/VertexBuffer.h
-        src/VertexBuffer.cpp
         src/Plots/Plot.h
         src/Plots/_2DPlot.cpp
         src/Plots/ScatterPlot.cpp
-        src/shader.h
-        src/shader.cpp
-        src/program.h
-        src/program.cpp
+        src/GL/GUIManager.cpp
+        src/GL/guimanager.h
+        src/GL/VertexBuffer.h
+        src/GL/VertexBuffer.cpp
+        src/GL/shader.h
+        src/GL/shader.cpp
+        src/GL/program.h
+        src/GL/program.cpp
         src/shaders.h
 )
 target_compile_definitions(OpenPlotLibTest PRIVATE GLEW_STATIC)

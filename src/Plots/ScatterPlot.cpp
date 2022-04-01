@@ -1,5 +1,5 @@
-#include "../GUIManager.h"
-#include "../VertexBuffer.h"
+#include "../GL/GUIManager.h"
+#include "../GL/VertexBuffer.h"
 #include "../shaders.h"
 #include "Plot.h"
 #include <boost/math/statistics/linear_regression.hpp>

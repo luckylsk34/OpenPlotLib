@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "../GUIManager.h"
+#include "../GL/GUIManager.h"
 #include "options.h"
 
 namespace po = boost::program_options;
