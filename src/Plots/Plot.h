@@ -13,50 +13,115 @@
 
 namespace po = boost::program_options;
 
+template <typename T>
 class Point
 {
 public:
-	float x;
-	float y;
+	T x;
+	T y;
 
 	Point()
 		: x(0)
 		, y(0) {};
-	Point(float x, float y)
+	Point(T x, T y)
 		: x(x)
 		, y(y) {};
 
-	float length() { return (float) std::sqrt(pow(x, 2) + pow(y, 2)); }
-	float dot(Point const &right) { return x * right.x + y * right.y; }
-	Point operator+(const Point &right) { return Point(x + right.x, y + right.y); }
-	Point operator-(const Point &right) { return Point(x - right.x, y - right.y); }
-	friend Point operator+(const Point &left, const float &right) { return Point(left.x + right, left.y + right); }
-	friend Point operator+(const float &left, const Point &right) { return Point(left + right.x, left + right.y); }
-	friend Point operator-(const Point &left, const float &right) { return Point(left.x - right, left.y - right); }
-	friend Point operator-(const float &left, const Point &right) { return Point(left - right.x, left - right.y); }
-	Point operator*(const Point &scale) { return Point(x * scale.x, y * scale.y); }
-	Point operator/(const Point &scale) { return Point(x / scale.x, y / scale.y); }
-	friend Point operator*(const Point &left, const float &right) { return Point(left.x * right, left.y * right); }
-	friend Point operator*(const float &left, const Point &right) { return Point(left * right.x, left * right.y); }
-	friend Point operator/(const Point &left, const float &right) { return Point(left.x / right, left.y / right); }
-	friend Point operator/(const float &left, const Point &right) { return Point(left / right.x, left / right.y); }
-	Point operator+=(const Point &right) { x += right.x, y += right.y; return *this; }
-	Point operator-=(const Point &right) { x -= right.x, y -= right.y; return *this; }
-	Point operator+=(const float &right) { x += right, y += right; return *this; }
-	Point operator-=(const float &right) { x -= right, y -= right; return *this; }
-	Point operator*=(const Point &right) { x *= right.x, y *= right.y; return *this; }
-	Point operator/=(const Point &right) { x /= right.x, y /= right.y; return *this; }
-	Point operator*=(const float &scale) { x *= scale, y *= scale; return *this; }
-	Point operator/=(const float &scale) { x /= scale, y /= scale; return *this; }
-	Point scale(float scale) { x *= scale, y *= scale; return *this; }
-	Point scale(float scale_x, float scale_y) { x *= scale_x, y *= scale_y; return *this; }
-	
-	friend std::ostream &operator<<(std::ostream &os, Point const &point) { 
-    	return os << "Point(" << point.x << ", " << point.y << ")";
+	T length() { return (T) std::sqrt(pow(x, 2) + pow(y, 2)); }
+	template <typename U>
+	T dot(Point<U> const &right) { return x * right.x + y * right.y; }
+	template <typename U>
+	Point operator+(const Point<U> &right) { return Point(x + right.x, y + right.y); }
+	template <typename U>
+	Point operator-(const Point<U> &right) { return Point(x - right.x, y - right.y); }
+	template <typename U>
+	friend Point operator+(const Point &left, const U &right) { return Point(left.x + right, left.y + right); }
+	template <typename U>
+	friend Point operator+(const U &left, const Point &right) { return Point(left + right.x, left + right.y); }
+	template <typename U>
+	friend Point operator-(const Point &left, const U &right) { return Point(left.x - right, left.y - right); }
+	template <typename U>
+	friend Point operator-(const U &left, const Point &right) { return Point(left - right.x, left - right.y); }
+	template <typename U>
+	Point operator*(const Point<U> &scale) { return Point(x * scale.x, y * scale.y); }
+	template <typename U>
+	Point operator/(const Point<U> &scale) { return Point(x / scale.x, y / scale.y); }
+	template <typename U>
+	friend Point operator*(const Point &left, const U &right) { return Point(left.x * right, left.y * right); }
+	template <typename U>
+	friend Point operator*(const U &left, const Point &right) { return Point(left * right.x, left * right.y); }
+	template <typename U>
+	friend Point operator/(const Point &left, const U &right) { return Point(left.x / right, left.y / right); }
+	template <typename U>
+	friend Point operator/(const U &left, const Point &right) { return Point(left / right.x, left / right.y); }
+	template <typename U>
+	Point operator+=(const Point<U> &right)
+	{
+		x += right.x, y += right.y;
+		return *this;
+	}
+	template <typename U>
+	Point operator-=(const Point<U> &right)
+	{
+		x -= right.x, y -= right.y;
+		return *this;
+	}
+	template <typename U>
+	Point operator+=(const U &right)
+	{
+		x += right, y += right;
+		return *this;
+	}
+	template <typename U>
+	Point operator-=(const U &right)
+	{
+		x -= right, y -= right;
+		return *this;
+	}
+	template <typename U>
+	Point operator*=(const Point<U> &right)
+	{
+		x *= right.x, y *= right.y;
+		return *this;
+	}
+	template <typename U>
+	Point operator/=(const Point<U> &right)
+	{
+		x /= right.x, y /= right.y;
+		return *this;
+	}
+	template <typename U>
+	Point operator*=(const U &scale)
+	{
+		x *= scale, y *= scale;
+		return *this;
+	}
+	template <typename U>
+	Point operator/=(const U &scale)
+	{
+		x /= scale, y /= scale;
+		return *this;
+	}
+	template <typename U>
+	Point scale(U scale)
+	{
+		x *= scale, y *= scale;
+		return *this;
+	}
+	template <typename U, typename V>
+	Point scale(U scale_x, V scale_y)
+	{
+		x *= scale_x, y *= scale_y;
+		return *this;
 	}
 
-	template <typename T>
-	Point to_type() {return Point(T(x), T(y));};
+	friend std::ostream &operator<<(std::ostream &os, Point const &point)
+	{
+		return os << "Point(" << point.x << ", " << point.y << ")";
+	}
+
+	template <typename U>
+	Point<U> to_type() { return Point<U>(x, y); };
 	// operator int() const { return Point(int(x), int(y)); }
 };
 
@@ -118,18 +183,18 @@ class ScatterPlot : public _2DPlot
 {
 public:
 	po::variables_map vm;
-	std::vector<Point> data;
+	std::vector<Point<float>> data;
 	ScatterPlotOptions options;
 
 	ScatterPlot() {};
 
-	ScatterPlot(po::variables_map vm,  ScatterPlotOptions options)
-		: ScatterPlot(std::vector<Point>(), vm, options) {};
+	ScatterPlot(po::variables_map vm, ScatterPlotOptions options)
+		: ScatterPlot(std::vector<Point<float>>(), vm, options) {};
 
-	ScatterPlot(std::vector<Point> data, po::variables_map vm, ScatterPlotOptions options)
+	ScatterPlot(std::vector<Point<float>> data, po::variables_map vm, ScatterPlotOptions options)
 		: data(data)
 		, vm(vm)
-		,options(options)
+		, options(options)
 	{
 		this->x_range.set(0, 100, 10);
 		this->y_range.set(0, 100, 10);

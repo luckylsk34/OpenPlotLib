@@ -14,7 +14,7 @@ namespace stats = boost::math::statistics;
 #define PI 3.1415926f
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-void add_point_vertices(ScatterPlotOptions &options, std::vector<Point> &points, std::vector<float> &q1)
+void add_point_vertices(ScatterPlotOptions &options, std::vector<Point<float>> &points, std::vector<float> &q1)
 {
 	// Use a Vertex Array Object
 	// GLuint vao;
@@ -41,8 +41,8 @@ void add_point_vertices(ScatterPlotOptions &options, std::vector<Point> &points,
 		// transform the point
 		point -= Point(minx, miny);
 		point.scale(1 / (maxx - minx), 1 / (maxy - miny));
-		point -= Point(0.5, 0.5);
-		point.scale(1.5);
+		point -= Point(0.5f, 0.5f);
+		point.scale(1.5f);
 		point *= 1 - 2.f * options.axes_seperation() / resolution;
 
 		// add the 6 vertices for the triangles.
@@ -86,7 +86,7 @@ enum scatter_plot_programs {
 };
 
 template <typename T>
-void add_regressor_points(std::vector<Point> &points, std::vector<T> &vec)
+void add_regressor_points(std::vector<Point<float>> &points, std::vector<T> &vec)
 {
 	auto x = std::vector<float>(points.size());
 	auto y = std::vector<float>(points.size());
@@ -107,14 +107,13 @@ void add_ticks(ScatterPlotOptions &options, std::vector<T> &vec)
 	if (!options.tick_enabled())
 		return;
 
-	Point bottom_left(-0.75, -0.75), top_right(0.75, 0.75);
+	Point bottom_left(-0.75f, -0.75f), top_right(0.75f, 0.75f);
 	Point resolution = Point(options.screen_width(), options.screen_height());
 	bottom_left *= 1 - 2.f * options.axes_seperation() / resolution;
 	top_right *= 1 - 2.f * options.axes_seperation() / resolution;
 
 	int min_ruler_width = 40;
 	auto num_ticks = (top_right - bottom_left) / 2 * resolution / min_ruler_width;
-	num_ticks = num_ticks.to_type<int>();
 	auto tick_sep = (top_right - bottom_left) / (num_ticks - 1);
 	auto start = bottom_left;
 

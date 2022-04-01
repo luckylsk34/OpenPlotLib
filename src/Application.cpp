@@ -13,21 +13,21 @@ int main(int argc, char *argv[])
 	po::notify(vm);
 
 	// // float circleRadius = 60.0;
-	std::vector<Point> points { Point({ 10, 100 }),
-		                        Point({ 10.2, 300 }),
-		                        Point({ 10.6, 500 }),
-		                        Point({ 11, 700 }),
-		                        Point({ 11.4, 900 }),
-		                        Point({ 12.1, 1000 }),
-		                        Point({ 12.3, 1200 }),
-		                        Point({ 12.7, 1400 }),
-		                        Point({ 13.3, 1600 }),
-		                        Point({ 13.7, 1710 }),
-		                        Point({ 14, 1700 }),
-		                        Point({ 14.3, 1600 }),
-		                        Point({ 14.7, 1500 }),
-		                        Point({ 15.1, 1400 }),
-		                        Point({ 15.7, 1300 }) };
+	std::vector points { Point<float>({ 10, 100 }),
+		                 Point<float>({ 10.2f, 300 }),
+		                 Point<float>({ 10.6f, 500 }),
+		                 Point<float>({ 11, 700 }),
+		                 Point<float>({ 11.4f, 900 }),
+		                 Point<float>({ 12.1f, 1000 }),
+		                 Point<float>({ 12.3f, 1200 }),
+		                 Point<float>({ 12.7f, 1400 }),
+		                 Point<float>({ 13.3f, 1600 }),
+		                 Point<float>({ 13.7f, 1710 }),
+		                 Point<float>({ 14, 1700 }),
+		                 Point<float>({ 14.3f, 1600 }),
+		                 Point<float>({ 14.7f, 1500 }),
+		                 Point<float>({ 15.1f, 1400 }),
+		                 Point<float>({ 15.7f, 1300 }) };
 	// std::vector<Point> points { Point({ 10, 10 }),
 	// 	                        Point({ 20, 20 }),
 	// 	                        Point({ 30, 30 }),
@@ -42,10 +42,9 @@ int main(int argc, char *argv[])
 	options.set_tick_length(18);
 	options.set_axes_seperation(30);
 	options.set_point_radius(10);
-	
+
 	auto plot1 = std::make_unique<ScatterPlot>(points, vm, options);
 	plot1->show();
-
 
 	return 0;
 }
