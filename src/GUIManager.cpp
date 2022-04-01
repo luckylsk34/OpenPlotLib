@@ -41,8 +41,8 @@ void GUIManager::start_window(int screen_width, int screen_height, std::map<std:
 
 GUIManager::~GUIManager()
 {
-	// for (auto shader : this->shaders)
-	// 	delete shader.second;
+	for (auto shader : this->shaders)
+		shader.second.destroy();
 	for (auto program : this->programs) {
 		this->detach_all_shaders(program.first);
 		glDeleteProgram(program.second);
