@@ -139,8 +139,11 @@ int ScatterPlot::show()
 	this->guiManager->start_window(this->options.screen_width(), this->options.screen_height(), shaders, initialised);
 	if (initialised < 0)
 		return -1;
+	unsigned int id = glCreateShader(GL_VERTEX_SHADER);
+	id = glCreateShader(GL_FRAGMENT_SHADER);
+	id = glCreateShader(GL_VERTEX_SHADER);
+	id = glCreateShader(GL_FRAGMENT_SHADER);
 
-	VertexBuffer vbo;
 	// Points
 	std::vector<float> q1;
 	add_point_vertices(this->options, this->data, q1);
@@ -157,11 +160,15 @@ int ScatterPlot::show()
 	auto resolution = Point(this->guiManager->screen_width, this->guiManager->screen_height);
 	add_ticks(this->options, q1);
 
-	vbo.send_data(q1.data(), q1.size() * 4);
+	VertexBuffer vbo(q1.data(), q1.size() * 4);
 
+	std::cout << "Creating points_program" << std::endl;
 	this->guiManager->create_program(points_program);
+	std::cout << "Binging Shaders" << std::endl;
 	this->guiManager->bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
+	std::cout << "Cmreating axis_progra" << std::endl;
 	this->guiManager->create_program(axis_program);
+	std::cout << "Binging Shaders" << std::endl;
 	this->guiManager->bind_shaders(axis_program, "empty_vertex", "empty_fragment");
 
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -180,17 +187,19 @@ void ScatterPlot::draw()
 	glClearColor(1, 1, 1, 1);
 	// double posx, posy;
 	// glfwGetCursorPos(window, &posx, &posy);
-	this->draw_points();
-	this->draw_axes();
+	// std::cout << "Drawing Points" << std::endl;
+	// this->draw_points();
+	// std::cout << "Drawing Axes" << std::endl;
+	// this->draw_axes();
 	// Draw Legend
 }
 
 void ScatterPlot::draw_points()
 {
 	this->guiManager->use_program(points_program);
-	int program = this->guiManager->programs[points_program];
-	int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
-	int ATTRIB_VALUE = glGetAttribLocation(program, "value");
+	Program program = this->guiManager->programs[points_program];
+	int ATTRIB_VERTEX = glGetAttribLocation(program.id(), "vertex");
+	int ATTRIB_VALUE = glGetAttribLocation(program.id(), "value");
 
 	glEnableVertexAttribArray(ATTRIB_VERTEX);
 	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 16, 0);
@@ -202,8 +211,8 @@ void ScatterPlot::draw_points()
 void ScatterPlot::draw_axes()
 {
 	this->guiManager->use_program(axis_program);
-	int program = this->guiManager->programs[axis_program];
-	int ATTRIB_VERTEX = glGetAttribLocation(program, "vertex");
+	Program program = this->guiManager->programs[axis_program];
+	int ATTRIB_VERTEX = glGetAttribLocation(program.id(), "vertex");
 
 	glEnableVertexAttribArray(ATTRIB_VERTEX);
 	glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, GL_FALSE, 8, BUFFER_OFFSET(this->data.size() * 24 * 4));

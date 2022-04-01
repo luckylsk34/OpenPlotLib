@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include <string>
 
 class Shader
@@ -11,6 +12,7 @@ private:
 	unsigned int _id;
 
 public:
+	Shader() {}
 	Shader(unsigned int type)
 		: _type(type) {};
 

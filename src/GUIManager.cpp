@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #define SCREENSHOT_PNG_PATH "screenshot.png"
@@ -43,21 +44,24 @@ GUIManager::~GUIManager()
 {
 	// for (auto shader : this->shaders)
 	// 	delete shader.second;
-	for (auto program : this->programs) {
-		this->detach_all_shaders(program.first);
-		glDeleteProgram(program.second);
-	}
+	// for (auto program : this->programs) {
+	// 	this->detach_all_shaders(program.first);
+	// 	glDeleteProgram(program.second);
+	// }
 	glfwTerminate();
 }
 
 void GUIManager::create_program(const unsigned int program_name)
 {
-	this->programs[program_name] = glCreateProgram();
+	std::cout << "Creating program " << program_name << std::endl;
+	// this->programs[program_name] = Program();
+	this->programs.insert(std::make_pair(program_name, Program()));
+	std::cout << program_name << " Program created" << std::endl;
 }
 
 void GUIManager::use_program(const unsigned int program_name)
 {
-	glUseProgram(this->programs[program_name]);
+	this->programs[program_name].use();
 }
 
 bool GUIManager::check_for_error(unsigned int program, int whatToCheck)
@@ -76,46 +80,24 @@ bool GUIManager::check_for_error(unsigned int program, int whatToCheck)
 	return true;
 }
 
-void GUIManager::detach_all_shaders(const unsigned int program_name)
+unsigned int GUIManager::rebind_shaders(const unsigned int program_name, std::string vs_name, std::string fs_name)
 {
-	int maxCount = 10;
-	int count;
-	GLuint *shaders = new GLuint[maxCount];
 	auto program = this->programs[program_name];
-	glGetAttachedShaders(program, maxCount, &count, shaders);
-	for (int i = 0; i < count; ++i)
-		glDetachShader(program, shaders[i]);
-	std::cout << "Detached " << count << " shaders" << std::endl;
-	delete[] shaders;
-}
-
-unsigned int GUIManager::rebind_shaders(const unsigned int program_name, std::string vertexShader, std::string fragmentShader)
-{
-	this->detach_all_shaders(program_name);
-	Shader compiledVertexShader = this->shaders[vertexShader];
-	Shader compiledFragmentShader = this->shaders[fragmentShader];
-	auto ret = GUIManager::bind_shaders(program_name, compiledVertexShader, compiledFragmentShader);
-	this->use_program(program_name);
+	program.detach_all_shaders();
+	Shader vs = this->shaders[vs_name];
+	Shader fs = this->shaders[fs_name];
+	auto ret = program.bind_shaders(std::move(vs), std::move(fs));
+	program.use();
 	return ret;
 }
 
 unsigned int GUIManager::bind_shaders(unsigned int program_name, const std::string vertex_shader, const std::string fragment_shader)
 {
-	Shader compiledVertexShader = this->shaders[vertex_shader];
-	Shader compiledFragmentShader = this->shaders[fragment_shader];
-	return GUIManager::bind_shaders(program_name, compiledVertexShader, compiledFragmentShader);
-}
-
-unsigned int GUIManager::bind_shaders(unsigned int program_name, const Shader vertexshader, const Shader fragmentshader)
-{
+	Shader vs = this->shaders[vertex_shader];
+	Shader fs = this->shaders[fragment_shader];
 	auto program = this->programs[program_name];
-	glAttachShader(program, vertexshader.id());
-	glAttachShader(program, fragmentshader.id());
-	glLinkProgram(program);
-	if (check_for_error(program, GL_LINK_STATUS)) return 0;
-	glValidateProgram(program);
-	if (check_for_error(program, GL_VALIDATE_STATUS)) return 0;
-	return 1;
+	std::cout << "GUIManager::bind_shaders -> " << program_name << std::endl;
+	return program.bind_shaders(vs, fs);
 }
 
 void GUIManager::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
