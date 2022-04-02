@@ -21,5 +21,5 @@ void main() {
     float alpha = sm;
     
     // out_color = vec4(76.0 / 255, 114.0 / 255, 176.0 / 255, alpha);
-    out_color = vec4(gl_FragCoord.xy/400, 0.0, alpha);
+    out_color = vec4(gl_FragCoord.x/800, 0.0, gl_FragCoord.y/800, alpha);
 }

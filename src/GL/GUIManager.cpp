@@ -151,8 +151,8 @@ void GUIManager::swap_buffer()
 void GUIManager::post_draw_steps()
 {
 	glfwSwapBuffers(this->window);
-	// glfwPollEvents();
-	glfwWaitEvents();
+	glfwPollEvents();
+	// glfwWaitEvents();
 }
 
 void GLAPIENTRY
