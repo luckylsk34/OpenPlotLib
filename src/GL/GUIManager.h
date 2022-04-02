@@ -28,6 +28,7 @@ public:
 	~GUIManager();
 	static GUIManager *get_instance();
 	bool window_closed();
+	void swap_buffer();
 	void post_draw_steps();
 	static bool check_for_error(unsigned int program, int whatToCheck);
 	static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);

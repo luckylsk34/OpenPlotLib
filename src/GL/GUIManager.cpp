@@ -143,6 +143,11 @@ bool GUIManager::window_closed()
 	return glfwWindowShouldClose(this->window);
 }
 
+void GUIManager::swap_buffer()
+{
+	glfwSwapBuffers(this->window);
+}
+
 void GUIManager::post_draw_steps()
 {
 	glfwSwapBuffers(this->window);
