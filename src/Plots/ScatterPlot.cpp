@@ -5,9 +5,6 @@
 #include <boost/math/statistics/linear_regression.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 #include <iostream>
-#include <stdint.h>
-#include <string>
-#include <tuple>
 
 namespace stats = boost::math::statistics;
 
@@ -138,10 +135,6 @@ int ScatterPlot::show()
 	this->guiManager->start_window(this->options.screen_width(), this->options.screen_height(), shaders, initialised);
 	if (initialised < 0)
 		return -1;
-	unsigned int id = glCreateShader(GL_VERTEX_SHADER);
-	id = glCreateShader(GL_FRAGMENT_SHADER);
-	id = glCreateShader(GL_VERTEX_SHADER);
-	id = glCreateShader(GL_FRAGMENT_SHADER);
 
 	// Points
 	std::vector<float> q1;

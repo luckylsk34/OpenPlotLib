@@ -1,5 +1,4 @@
 #include "Plots/Plot.h"
-#include <cmath>
 
 #define DEFAULT_SCREEN_WIDTH 1000
 #define DEFAULT_SCREEN_HEIGHT 800
@@ -27,7 +26,7 @@ int main(int argc, char *argv[])
 	options.set_num_simulations_per_frame(4000);
 
 	auto plot1 = std::make_unique<ChaosSim>(
-		points, Point<float>({ 15, 15 }), vm, options);
+		points, Point<float>({ 15, 15 }), options);
 	plot1->show();
 
 	return 0;

@@ -210,7 +210,6 @@ public:
 class ChaosSim : public _2DPlot
 {
 public:
-	po::variables_map vm;
 	std::vector<Point<float>> data;
 	Point<float> starting_pos;
 	ChaosSimOptions options;
@@ -218,13 +217,12 @@ public:
 
 	ChaosSim() {};
 
-	ChaosSim(po::variables_map vm, ChaosSimOptions options)
-		: ChaosSim(std::vector<Point<float>>(), Point<float>(0, 0), vm, options) {};
+	ChaosSim(ChaosSimOptions options)
+		: ChaosSim(std::vector<Point<float>>(), Point<float>(0, 0), options) {};
 
-	ChaosSim(std::vector<Point<float>> data, Point<float> starting_pos, po::variables_map vm, ChaosSimOptions options)
+	ChaosSim(std::vector<Point<float>> data, Point<float> starting_pos, ChaosSimOptions options)
 		: data(data)
 		, starting_pos(starting_pos)
-		, vm(vm)
 		, options(options)
 	{
 		this->x_range.set(0, 100, 10);
@@ -232,10 +230,7 @@ public:
 	};
 
 	int show() override;
-	void draw() override;
 	void draw_points(int num_points);
-	void draw_axes();
-	void draw_legend();
 	Point<float> get_next_point();
 	std::vector<Point<float>> get_next_points(int num_points);
 };
