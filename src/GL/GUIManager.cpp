@@ -11,13 +11,12 @@
 
 GUIManager *GUIManager::instance = nullptr;
 
-GUIManager* GUIManager::get_instance()
+GUIManager *GUIManager::get_instance()
 {
 	if (!instance)
-      	instance = new GUIManager;
+		instance = new GUIManager;
 	return instance;
 }
-
 
 GUIManager::GUIManager() { }
 
@@ -148,11 +147,13 @@ void GUIManager::swap_buffer()
 	glfwSwapBuffers(this->window);
 }
 
-void GUIManager::post_draw_steps()
+void GUIManager::post_draw_steps(Event event)
 {
 	glfwSwapBuffers(this->window);
-	glfwPollEvents();
-	// glfwWaitEvents();
+	if (event == Event::Poll)
+		glfwPollEvents();
+	else if (event == Event::Wait)
+		glfwWaitEvents();
 }
 
 void GLAPIENTRY

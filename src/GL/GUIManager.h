@@ -9,6 +9,11 @@
 #include <memory>
 #include <string>
 
+enum Event {
+	Poll,
+	Wait
+};
+
 class GUIManager
 {
 private:
@@ -29,7 +34,7 @@ public:
 	static GUIManager *get_instance();
 	bool window_closed();
 	void swap_buffer();
-	void post_draw_steps();
+	void post_draw_steps(Event event);
 	static bool check_for_error(unsigned int program, int whatToCheck);
 	static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 	void create_program(const unsigned int program_name);

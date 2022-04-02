@@ -170,7 +170,7 @@ int ScatterPlot::show()
 	while (!this->guiManager->window_closed()) {
 		glClearColor(1, 1, 1, 1);
 		this->draw();
-		this->guiManager->post_draw_steps();
+		this->guiManager->post_draw_steps(Event::Wait);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 	return 0;

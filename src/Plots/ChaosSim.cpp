@@ -199,7 +199,7 @@ int ChaosSim::show()
 		this->draw_points(points.size());
 		this->guiManager->swap_buffer();
 		this->draw_points(points.size());
-		this->guiManager->post_draw_steps();
+		this->guiManager->post_draw_steps(Event::Poll);
 
 		points.clear();
 		points.insert(points.end(), this->data.begin(), this->data.end());
