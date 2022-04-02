@@ -1,4 +1,5 @@
 #include "Plots/Plot.h"
+#include <cmath>
 
 #define DEFAULT_SCREEN_WIDTH 500
 #define DEFAULT_SCREEN_HEIGHT 400
@@ -33,6 +34,11 @@ int main(int argc, char *argv[])
 	// 	                        Point({ 30, 30 }),
 	// 	                        Point({ 40, 40 }),
 	// 	                        Point({ 50, 50 }) };
+	std::vector<Point<float>> points2(360);
+	for (int i = 0; i < points2.size();i++) {
+		points2[i].x = i;
+		points2[i].y = sin(i * 3.14 / 180);
+	}
 
 	// Plot *plot = new _2DPlot();
 
@@ -43,7 +49,7 @@ int main(int argc, char *argv[])
 	options.set_axes_seperation(30);
 	options.set_point_radius(10);
 
-	auto plot1 = std::make_unique<ScatterPlot>(points, vm, options);
+	auto plot1 = std::make_unique<ScatterPlot>(points2, vm, options);
 	plot1->show();
 
 	return 0;
