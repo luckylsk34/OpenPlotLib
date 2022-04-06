@@ -50,13 +50,12 @@ target_compile_definitions(OpenPlotLibTest PRIVATE GLEW_STATIC)
 target_include_directories(OpenPlotLibTest PRIVATE ${Boost_INCLUDE_DIRS} ${Python_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS})
 target_link_libraries(OpenPlotLibTest ${Boost_LIBRARIES} ${Python_LIBRARIES} ${OPENGL_LIBRARIES})
 
-add_executable(ChaosSimApp src/ChaosSimApp.cpp )
-target_sources(ChaosSimApp
+add_executable(SierpinskiApp src/SierpinskiApp.cpp )
+target_sources(SierpinskiApp
     PRIVATE
         src/Plots/Plot.h
         src/Plots/_2DPlot.cpp
-        # src/Plots/ScatterPlot.cpp
-        src/Plots/ChaosSim.cpp
+        src/Plots/SierpinskiPlot.cpp
         src/GL/GUIManager.cpp
         src/GL/guimanager.h
         src/GL/VertexBuffer.h
@@ -67,9 +66,29 @@ target_sources(ChaosSimApp
         src/GL/program.cpp
         src/shaders.h
 )
-target_compile_definitions(ChaosSimApp PRIVATE GLEW_STATIC)
-target_include_directories(ChaosSimApp PRIVATE ${Boost_INCLUDE_DIRS} ${Python_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS})
-target_link_libraries(ChaosSimApp ${Boost_LIBRARIES} ${Python_LIBRARIES} ${OPENGL_LIBRARIES})
+target_compile_definitions(SierpinskiApp PRIVATE GLEW_STATIC)
+target_include_directories(SierpinskiApp PRIVATE ${Boost_INCLUDE_DIRS} ${Python_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS})
+target_link_libraries(SierpinskiApp ${Boost_LIBRARIES} ${Python_LIBRARIES} ${OPENGL_LIBRARIES})
+
+add_executable(BarnsleyFernApp src/BarnsleyFernApp.cpp )
+target_sources(BarnsleyFernApp
+    PRIVATE
+        src/Plots/Plot.h
+        src/Plots/_2DPlot.cpp
+        src/Plots/BarnsleyFernPlot.cpp
+        src/GL/GUIManager.cpp
+        src/GL/guimanager.h
+        src/GL/VertexBuffer.h
+        src/GL/VertexBuffer.cpp
+        src/GL/shader.h
+        src/GL/shader.cpp
+        src/GL/program.h
+        src/GL/program.cpp
+        src/shaders.h
+)
+target_compile_definitions(BarnsleyFernApp PRIVATE GLEW_STATIC)
+target_include_directories(BarnsleyFernApp PRIVATE ${Boost_INCLUDE_DIRS} ${Python_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS})
+target_link_libraries(BarnsleyFernApp ${Boost_LIBRARIES} ${Python_LIBRARIES} ${OPENGL_LIBRARIES})
 
 # add_library(OpenPlotLib MODULE src/OpenPlotLib.cpp )
 # target_sources(OpenPlotLib
@@ -98,7 +117,7 @@ target_link_libraries(ChaosSimApp ${Boost_LIBRARIES} ${Python_LIBRARIES} ${OPENG
 #         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/create_shader.cmake)
 add_custom_command(TARGET OpenPlotLibTest PRE_BUILD 
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/create_shader.cmake)
-add_custom_command(TARGET ChaosSimApp PRE_BUILD 
+add_custom_command(TARGET SierpinskiApp PRE_BUILD 
         COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_SOURCE_DIR}/create_shader.cmake)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

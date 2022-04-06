@@ -30,7 +30,17 @@ public:
 	bool tick_enabled() { return this->_ticks_enabled; }
 };
 
-class ChaosSimOptions : public ScatterPlotOptions
+class SierpinskiPlotOptions : public ScatterPlotOptions
+{
+private:
+	int num_simulations_per_frame = 1;
+
+public:
+	void set_num_simulations_per_frame(int num_simulations) { this->num_simulations_per_frame = num_simulations; }
+	int get_num_simulations_per_frame() { return this->num_simulations_per_frame; }
+};
+
+class BarnsleyFernPlotOptions : public ScatterPlotOptions
 {
 private:
 	int num_simulations_per_frame = 1;

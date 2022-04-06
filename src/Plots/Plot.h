@@ -3,15 +3,18 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "boost/program_options.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/program_options.hpp>
 #include <iostream>
 #include <utility>
 #include <vector>
+
 
 #include "../GL/GUIManager.h"
 #include "options.h"
 
 namespace po = boost::program_options;
+namespace bu = boost::numeric::ublas;
 
 template <typename T>
 class Point
@@ -207,26 +210,85 @@ public:
 	void draw_legend();
 };
 
-class ChaosSim : public _2DPlot
+class SierpinskiPlot : public _2DPlot
 {
 public:
 	std::vector<Point<float>> data;
 	Point<float> starting_pos;
-	ChaosSimOptions options;
+	SierpinskiPlotOptions options;
 	int simulated_points = 0;
 
-	ChaosSim() {};
+	SierpinskiPlot() {};
 
-	ChaosSim(ChaosSimOptions options)
-		: ChaosSim(std::vector<Point<float>>(), Point<float>(0, 0), options) {};
+	SierpinskiPlot(SierpinskiPlotOptions options)
+		: SierpinskiPlot(std::vector<Point<float>>(), Point<float>(0, 0), options) {};
 
-	ChaosSim(std::vector<Point<float>> data, Point<float> starting_pos, ChaosSimOptions options)
+	SierpinskiPlot(std::vector<Point<float>> data, Point<float> starting_pos, SierpinskiPlotOptions options)
 		: data(data)
 		, starting_pos(starting_pos)
 		, options(options)
 	{
 		this->x_range.set(0, 100, 10);
 		this->y_range.set(0, 100, 10);
+	};
+
+	int show() override;
+	void draw_points(int num_points);
+	Point<float> get_next_point();
+	std::vector<Point<float>> get_next_points(int num_points);
+};
+
+class BarnsleyFernPlot : public _2DPlot
+{
+public:
+	// Point<float> starting_pos { 0, 0 };
+	bu::matrix<double> starting_pos { 2, 1 };
+	std::vector<bu::matrix<double>> f;
+	std::vector<bu::matrix<double>> f_;
+	BarnsleyFernPlotOptions options;
+	int simulated_points = 0;
+
+	BarnsleyFernPlot() {};
+
+	BarnsleyFernPlot(BarnsleyFernPlotOptions options)
+		: options(options)
+	{
+		// this->x_range.set(0, 1, 10);
+		// this->y_range.set(0, 1, 10);
+		starting_pos(0, 0) = 0;
+		starting_pos(1, 0) = 0;
+		std::vector<float> _f1 { 0, 0, 0, 0.16 };
+		std::vector<float> _f2 { 0.85, 0.04, -0.04, 0.85 };
+		std::vector<float> _f3 { 0.20, -0.26, 0.23, 0.22 };
+		std::vector<float> _f4 { -0.15, 0.28, 0.26, 0.24 };
+		std::vector<float> _f1_ { 0.0, 0.0 };
+		std::vector<float> _f2_ { 1.60, 0.85 };
+		std::vector<float> _f3_ { 1.60, 0.07 };
+		std::vector<float> _f4_ { 0.44, 0.07 };
+		bu::matrix<double> f1 { 2, 2 };
+		bu::matrix<double> f2 { 2, 2 };
+		bu::matrix<double> f3 { 2, 2 };
+		bu::matrix<double> f4 { 2, 2 };
+		bu::matrix<double> f1_ { 2, 1 };
+		bu::matrix<double> f2_ { 2, 1 };
+		bu::matrix<double> f3_ { 2, 1 };
+		bu::matrix<double> f4_ { 2, 1 };
+		std::copy(_f1.begin(), _f1.end(), f1.data().begin());
+		std::copy(_f2.begin(), _f2.end(), f2.data().begin());
+		std::copy(_f3.begin(), _f3.end(), f3.data().begin());
+		std::copy(_f4.begin(), _f4.end(), f4.data().begin());
+		std::copy(_f1_.begin(), _f1_.end(), f1_.data().begin());
+		std::copy(_f2_.begin(), _f2_.end(), f2_.data().begin());
+		std::copy(_f3_.begin(), _f3_.end(), f3_.data().begin());
+		std::copy(_f4_.begin(), _f4_.end(), f4_.data().begin());
+		f.push_back(f1);
+		f.push_back(f2);
+		f.push_back(f3);
+		f.push_back(f4);
+		f_.push_back(f1_);
+		f_.push_back(f2_);
+		f_.push_back(f3_);
+		f_.push_back(f4_);
 	};
 
 	int show() override;

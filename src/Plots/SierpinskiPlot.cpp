@@ -75,7 +75,7 @@ enum scatter_plot_programs {
 	axis_program
 };
 
-Point<float> ChaosSim::get_next_point()
+Point<float> SierpinskiPlot::get_next_point()
 {
 	simulated_points++;
 	std::random_device dev;
@@ -86,7 +86,7 @@ Point<float> ChaosSim::get_next_point()
 	return starting_pos = (data[choice] + starting_pos) / 2;
 }
 
-std::vector<Point<float>> ChaosSim::get_next_points(int num_points)
+std::vector<Point<float>> SierpinskiPlot::get_next_points(int num_points)
 {
 	std::vector<Point<float>> points;
 	for (int i = 0; i < num_points; i++)
@@ -94,7 +94,7 @@ std::vector<Point<float>> ChaosSim::get_next_points(int num_points)
 	return points;
 }
 
-int ChaosSim::show()
+int SierpinskiPlot::show()
 {
 	int initialised;
 	this->guiManager = GUIManager::get_instance();
@@ -138,7 +138,7 @@ int ChaosSim::show()
 	return 0;
 }
 
-void ChaosSim::draw_points(int num_points)
+void SierpinskiPlot::draw_points(int num_points)
 {
 	this->guiManager->use_program(points_program);
 	Program program = this->guiManager->programs[points_program];
