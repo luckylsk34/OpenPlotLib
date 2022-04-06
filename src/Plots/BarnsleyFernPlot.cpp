@@ -84,13 +84,8 @@ Point<double> BarnsleyFernPlot::get_next_point()
 	std::uniform_int_distribution<std::mt19937::result_type> dist6(0, (unsigned int) (f.size() - 1)); // distribution in range [0, 3]
 
 	auto choice = dist6(rng);
-	// std::cout << choice << std::endl;
-	// std::cout << f[choice] << std::endl;
-	auto _ = prod(f[choice], starting_pos);
-	auto result = _ + f_[choice];
-	// std::cout << result << std::endl;
-	starting_pos = result;
-	return Point<double>(result(0, 0), result(1, 0));
+	starting_pos = prod(f[choice], starting_pos) + f_[choice];
+	return Point<double>(starting_pos(0, 0), starting_pos(1, 0));
 }
 
 std::vector<Point<double>> BarnsleyFernPlot::get_next_points(size_t num_points)

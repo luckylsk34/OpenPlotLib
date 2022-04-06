@@ -106,8 +106,6 @@ int SierpinskiPlot::show()
 	std::vector<float> q1;
 	std::vector<Point<double>> points = this->data;
 	points.push_back(this->starting_pos);
-	// std::cout << "starting_pos: " << this->starting_pos << "\n";
-	// std::cout << "points: " << points[3] << "\n";
 	add_point_vertices(this->options, points, q1);
 
 	VertexBuffer vbo(q1.data(), (int) q1.size() * 4);
@@ -122,7 +120,6 @@ int SierpinskiPlot::show()
 	guiManager->swap_buffer();
 	glClearColor(1u, 1u, 1u, 1u);
 	glClear(GL_COLOR_BUFFER_BIT);
-	std::cout << "points: " << points[3] << "\n";
 	while (!this->guiManager->window_closed()) {
 		this->draw_points(points.size());
 		this->guiManager->swap_buffer();
@@ -136,7 +133,6 @@ int SierpinskiPlot::show()
 		q1.clear();
 		add_point_vertices(this->options, points, q1);
 		vbo.send_data(q1.data(), q1.size() * 4);
-		// std::cout << "points: " << points[3] << "\n";
 		std::cout << "num_simulations: " << this->simulated_points << "\r";
 	}
 	return 0;
