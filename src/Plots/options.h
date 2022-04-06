@@ -4,7 +4,7 @@ class ScatterPlotOptions
 {
 private:
 	int _screen_width, _screen_height;
-	float _tick_length;
+	double _tick_length;
 	int _point_radius;
 	int _axes_seperation;
 	bool _ticks_enabled = false;
@@ -16,13 +16,13 @@ public:
 		this->_screen_height = screen_height;
 	}
 
-	void set_tick_length(float tick_length) { this->_tick_length = tick_length; }
+	void set_tick_length(double tick_length) { this->_tick_length = tick_length; }
 	void set_point_radius(int point_radius) { this->_point_radius = point_radius; }
 	void set_axes_seperation(int axes_seperation) { this->_axes_seperation = axes_seperation; }
 
 	int screen_width() { return this->_screen_width; }
 	int screen_height() { return this->_screen_height; }
-	float tick_length() { return this->_tick_length; }
+	double tick_length() { return this->_tick_length; }
 	int point_radius() { return this->_point_radius; }
 	int axes_seperation() { return this->_axes_seperation; }
 

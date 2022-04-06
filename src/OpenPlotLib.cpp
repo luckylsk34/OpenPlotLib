@@ -21,7 +21,7 @@ inline std::vector<T> to_std_vector(const py::object &iterable)
 
 int emptyGraph(py::list x_data, py::list y_data)
 {
-	// float circleRadius = 60.0;
+	// double circleRadius = 60.0;
 	// std::vector<Circle> circles { Circle({ 1000, 100 }, circleRadius),
 	//	                          Circle({ 1000, 300 }, circleRadius),
 	//	                          Circle({ 1000, 500 }, circleRadius),
@@ -44,13 +44,13 @@ int emptyGraph(py::list x_data, py::list y_data)
 	// for (int i = 0; i < len(data); i++) {
 	// 	points.push_back(Point(data[i][0], data[i][1]));
 	// }
-	auto x_ = to_std_vector<float>(x_data);
-	auto y_ = to_std_vector<float>(y_data);
+	auto x_ = to_std_vector<double>(x_data);
+	auto y_ = to_std_vector<double>(y_data);
 	for (int i = 0; i < x_.size(); i++) {
 		points.push_back(Point(x_[i], y_[i]));
 	}
 
-	// auto points = to_std_vector<float>(points);
+	// auto points = to_std_vector<double>(points);
 	Plot *plot1 = new ScatterPlot(points);
 	plot1->show();
 	return 0;

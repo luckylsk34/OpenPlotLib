@@ -5,12 +5,12 @@ private:
 
 public:
 	VertexBuffer();
-	VertexBuffer(const void *data, unsigned int size);
+	VertexBuffer(const void *data, size_t size);
 	~VertexBuffer();
 
 	void bind() const;
 	void unbind() const;
-	void send_data(const void *data, unsigned int size) const;
+	void send_data(const void *data, size_t size) const;
 };
 
 // To be implemented later.

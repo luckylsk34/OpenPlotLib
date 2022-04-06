@@ -9,9 +9,9 @@
 
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-void add_point_vertices(ScatterPlotOptions &options, std::vector<Point<float>> points, std::vector<float> &q1)
+void add_point_vertices(ScatterPlotOptions &options, std::vector<Point<double>> points, std::vector<float> &q1)
 {
-	float minx = FLT_MAX, maxx = FLT_MIN, miny = FLT_MAX, maxy = FLT_MIN;
+	double minx = FLT_MAX, maxx = FLT_MIN, miny = FLT_MAX, maxy = FLT_MIN;
 	for (auto point : points) {
 		if (minx > point.x)
 			minx = point.x;
@@ -23,47 +23,47 @@ void add_point_vertices(ScatterPlotOptions &options, std::vector<Point<float>> p
 			maxy = point.y;
 	}
 
-	float x_radius = (float) options.point_radius() / options.screen_width();
-	float y_radius = (float) options.point_radius() / options.screen_height();
+	double x_radius = (double) options.point_radius() / options.screen_width();
+	double y_radius = (double) options.point_radius() / options.screen_height();
 	float *quad = new float[points.size() * 24];
 	Point resolution = Point(options.screen_width(), options.screen_height());
 	for (auto [index, point] : points | boost::adaptors::indexed(0)) {
 		// transform the point
 		point -= Point(minx, miny);
 		point.scale(1 / (maxx - minx), 1 / (maxy - miny));
-		point -= Point(0.5f, 0.5f);
-		point.scale(1.5f);
+		point -= Point(0.5, 0.5);
+		point.scale(1.5);
 		point *= 1 - 2.f * options.axes_seperation() / resolution;
 
 		// add the 6 vertices for the triangles.
 		int offset = 0;
-		quad[24 * index + offset++] = point.x + x_radius;
-		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = (float) (point.x + x_radius);
+		quad[24 * index + offset++] = (float) (point.y - y_radius);
 		quad[24 * index + offset++] = 1;
 		quad[24 * index + offset++] = -1;
 
-		quad[24 * index + offset++] = point.x + x_radius;
-		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = (float) (point.x + x_radius);
+		quad[24 * index + offset++] = (float) (point.y + y_radius);
 		quad[24 * index + offset++] = 1;
 		quad[24 * index + offset++] = 1;
 
-		quad[24 * index + offset++] = point.x - x_radius;
-		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = (float) (point.x - x_radius);
+		quad[24 * index + offset++] = (float) (point.y + y_radius);
 		quad[24 * index + offset++] = -1;
 		quad[24 * index + offset++] = 1;
 
-		quad[24 * index + offset++] = point.x - x_radius;
-		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = (float) (point.x - x_radius);
+		quad[24 * index + offset++] = (float) (point.y + y_radius);
 		quad[24 * index + offset++] = -1;
 		quad[24 * index + offset++] = 1;
 
-		quad[24 * index + offset++] = point.x - x_radius;
-		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = (float) (point.x - x_radius);
+		quad[24 * index + offset++] = (float) (point.y - y_radius);
 		quad[24 * index + offset++] = -1;
 		quad[24 * index + offset++] = -1;
 
-		quad[24 * index + offset++] = point.x + x_radius;
-		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = (float) (point.x + x_radius);
+		quad[24 * index + offset++] = (float) (point.y - y_radius);
 		quad[24 * index + offset++] = 1;
 		quad[24 * index + offset++] = -1;
 	}
@@ -75,21 +75,21 @@ enum scatter_plot_programs {
 	axis_program
 };
 
-Point<float> SierpinskiPlot::get_next_point()
+Point<double> SierpinskiPlot::get_next_point()
 {
 	simulated_points++;
 	std::random_device dev;
 	std::mt19937 rng(dev());
-	std::uniform_int_distribution<std::mt19937::result_type> dist6(0, data.size() - 1); // distribution in range [0, 2]
+	std::uniform_int_distribution<std::mt19937::result_type> dist6(0, (int) data.size() - 1); // distribution in range [0, 2]
 
 	auto choice = dist6(rng);
 	return starting_pos = (data[choice] + starting_pos) / 2;
 }
 
-std::vector<Point<float>> SierpinskiPlot::get_next_points(int num_points)
+std::vector<Point<double>> SierpinskiPlot::get_next_points(size_t num_points)
 {
-	std::vector<Point<float>> points;
-	for (int i = 0; i < num_points; i++)
+	std::vector<Point<double>> points;
+	for (auto i = 0u; i < num_points; i++)
 		points.push_back(get_next_point());
 	return points;
 }
@@ -104,22 +104,25 @@ int SierpinskiPlot::show()
 
 	// Points
 	std::vector<float> q1;
-	std::vector<Point<float>> points = this->data;
+	std::vector<Point<double>> points = this->data;
 	points.push_back(this->starting_pos);
+	// std::cout << "starting_pos: " << this->starting_pos << "\n";
+	// std::cout << "points: " << points[3] << "\n";
 	add_point_vertices(this->options, points, q1);
 
-	VertexBuffer vbo(q1.data(), q1.size() * 4);
+	VertexBuffer vbo(q1.data(), (int) q1.size() * 4);
 
 	this->guiManager->create_program(points_program);
 	this->guiManager->bind_shaders(points_program, "scatter_plot_points_vertex", "scatter_plot_points_fragment");
 	this->guiManager->create_program(axis_program);
 	this->guiManager->bind_shaders(axis_program, "empty_vertex", "empty_fragment");
 
-	glClearColor(1, 1, 1, 1);
+	glClearColor(1u, 1u, 1u, 1u);
 	glClear(GL_COLOR_BUFFER_BIT);
 	guiManager->swap_buffer();
-	glClearColor(1, 1, 1, 1);
+	glClearColor(1u, 1u, 1u, 1u);
 	glClear(GL_COLOR_BUFFER_BIT);
+	std::cout << "points: " << points[3] << "\n";
 	while (!this->guiManager->window_closed()) {
 		this->draw_points(points.size());
 		this->guiManager->swap_buffer();
@@ -133,12 +136,13 @@ int SierpinskiPlot::show()
 		q1.clear();
 		add_point_vertices(this->options, points, q1);
 		vbo.send_data(q1.data(), q1.size() * 4);
+		// std::cout << "points: " << points[3] << "\n";
 		std::cout << "num_simulations: " << this->simulated_points << "\r";
 	}
 	return 0;
 }
 
-void SierpinskiPlot::draw_points(int num_points)
+void SierpinskiPlot::draw_points(size_t num_points)
 {
 	this->guiManager->use_program(points_program);
 	Program program = this->guiManager->programs[points_program];

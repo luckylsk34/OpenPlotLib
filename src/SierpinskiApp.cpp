@@ -12,10 +12,10 @@ int main(int argc, char *argv[])
 	po::store(po::parse_command_line(argc, argv, desc), vm);
 	po::notify(vm);
 
-	// // float circleRadius = 60.0;
-	std::vector points { Point<float>({ 10, 10 }),
-		                 Point<float>({ 30, 10 }),
-		                 Point<float>({ 20, 20 }) };
+	// // double circleRadius = 60.0;
+	std::vector points { Point<double>({ 10, 10 }),
+		                 Point<double>({ 30, 10 }),
+		                 Point<double>({ 20, 20 }) };
 
 	SierpinskiPlotOptions options;
 	options.set_resolution(DEFAULT_SCREEN_WIDTH, DEFAULT_SCREEN_HEIGHT);
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	options.set_num_simulations_per_frame(4000);
 
 	auto plot1 = std::make_unique<SierpinskiPlot>(
-		points, Point<float>({ 15, 15 }), options);
+		points, Point<double>({ 15, 15 }), options);
 	plot1->show();
 
 	return 0;

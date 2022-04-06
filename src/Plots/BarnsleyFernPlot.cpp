@@ -10,9 +10,9 @@
 
 #define BUFFER_OFFSET(i) ((char *) NULL + (i))
 
-void add_point_vertices(ScatterPlotOptions &options, std::vector<Point<float>> points, std::vector<float> &q1)
+void add_point_vertices(ScatterPlotOptions &options, std::vector<Point<double>> points, std::vector<float> &q1)
 {
-	// float minx = FLT_MAX, maxx = FLT_MIN, miny = FLT_MAX, maxy = FLT_MIN;
+	// double minx = FLT_MAX, maxx = FLT_MIN, miny = FLT_MAX, maxy = FLT_MIN;
 	// for (auto point : points) {
 	// 	if (minx > point.x)
 	// 		minx = point.x;
@@ -24,47 +24,47 @@ void add_point_vertices(ScatterPlotOptions &options, std::vector<Point<float>> p
 	// 		maxy = point.y;
 	// }
 
-	float x_radius = (float) options.point_radius() / options.screen_width();
-	float y_radius = (float) options.point_radius() / options.screen_height();
+	double x_radius = (double) options.point_radius() / options.screen_width();
+	double y_radius = (double) options.point_radius() / options.screen_height();
 	float *quad = new float[points.size() * 24];
 	Point resolution = Point(options.screen_width(), options.screen_height());
 	for (auto [index, point] : points | boost::adaptors::indexed(0)) {
 		// transform the point
 		// point -= Point(minx, miny);
 		// point.scale(1 / (maxx - minx), 1 / (maxy - miny));
-		point -= Point(0.5f, 0.5f);
-		// point.scale(1.5f);
+		point -= Point(0.5, 0.5);
+		// point.scale(1.5);
 		// point *= 1 - 2.f * options.axes_seperation() / resolution;
 
 		// add the 6 vertices for the triangles.
 		int offset = 0;
-		quad[24 * index + offset++] = point.x + x_radius;
-		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = (float) (point.x + x_radius);
+		quad[24 * index + offset++] = (float) (point.y - y_radius);
 		quad[24 * index + offset++] = 1;
 		quad[24 * index + offset++] = -1;
 
-		quad[24 * index + offset++] = point.x + x_radius;
-		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = (float) (point.x + x_radius);
+		quad[24 * index + offset++] = (float) (point.y + y_radius);
 		quad[24 * index + offset++] = 1;
 		quad[24 * index + offset++] = 1;
 
-		quad[24 * index + offset++] = point.x - x_radius;
-		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = (float) (point.x - x_radius);
+		quad[24 * index + offset++] = (float) (point.y + y_radius);
 		quad[24 * index + offset++] = -1;
 		quad[24 * index + offset++] = 1;
 
-		quad[24 * index + offset++] = point.x - x_radius;
-		quad[24 * index + offset++] = point.y + y_radius;
+		quad[24 * index + offset++] = (float) (point.x - x_radius);
+		quad[24 * index + offset++] = (float) (point.y + y_radius);
 		quad[24 * index + offset++] = -1;
 		quad[24 * index + offset++] = 1;
 
-		quad[24 * index + offset++] = point.x - x_radius;
-		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = (float) (point.x - x_radius);
+		quad[24 * index + offset++] = (float) (point.y - y_radius);
 		quad[24 * index + offset++] = -1;
 		quad[24 * index + offset++] = -1;
 
-		quad[24 * index + offset++] = point.x + x_radius;
-		quad[24 * index + offset++] = point.y - y_radius;
+		quad[24 * index + offset++] = (float) (point.x + x_radius);
+		quad[24 * index + offset++] = (float) (point.y - y_radius);
 		quad[24 * index + offset++] = 1;
 		quad[24 * index + offset++] = -1;
 	}
@@ -76,27 +76,27 @@ enum scatter_plot_programs {
 	axis_program
 };
 
-Point<float> BarnsleyFernPlot::get_next_point()
+Point<double> BarnsleyFernPlot::get_next_point()
 {
 	simulated_points++;
 	std::random_device dev;
 	std::mt19937 rng(dev());
-	std::uniform_int_distribution<std::mt19937::result_type> dist6(0, 100); // distribution in range [0, 3]
+	std::uniform_int_distribution<std::mt19937::result_type> dist6(0, (unsigned int) (f.size() - 1)); // distribution in range [0, 3]
 
 	auto choice = dist6(rng);
 	// std::cout << choice << std::endl;
 	// std::cout << f[choice] << std::endl;
 	auto _ = prod(f[choice], starting_pos);
 	auto result = _ + f_[choice];
-	std::cout << result << std::endl;
+	// std::cout << result << std::endl;
 	starting_pos = result;
-	return Point<float>(result(0, 0), result(1, 0));
+	return Point<double>(result(0, 0), result(1, 0));
 }
 
-std::vector<Point<float>> BarnsleyFernPlot::get_next_points(int num_points)
+std::vector<Point<double>> BarnsleyFernPlot::get_next_points(size_t num_points)
 {
-	std::vector<Point<float>> points;
-	for (int i = 0; i < num_points; i++)
+	std::vector<Point<double>> points;
+	for (auto i = 0u; i < num_points; i++)
 		points.push_back(get_next_point());
 	return points;
 }
@@ -111,8 +111,8 @@ int BarnsleyFernPlot::show()
 
 	// Points
 	std::vector<float> q1;
-	std::vector<Point<float>> points;
-	points.push_back(Point<float>(this->starting_pos(0, 0), this->starting_pos(1, 0)));
+	std::vector<Point<double>> points;
+	points.push_back(Point<double>(this->starting_pos(0, 0), this->starting_pos(1, 0)));
 	add_point_vertices(this->options, points, q1);
 
 	VertexBuffer vbo(q1.data(), q1.size() * 4);
@@ -145,7 +145,7 @@ int BarnsleyFernPlot::show()
 	return 0;
 }
 
-void BarnsleyFernPlot::draw_points(int num_points)
+void BarnsleyFernPlot::draw_points(size_t num_points)
 {
 	this->guiManager->use_program(points_program);
 	Program program = this->guiManager->programs[points_program];
